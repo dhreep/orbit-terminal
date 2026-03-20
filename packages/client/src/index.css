@@ -1,0 +1,207 @@
+@import "tailwindcss";
+
+@theme {
+  --color-on-tertiary-fixed: #001f2a;
+  --color-on-secondary: #3f2e00;
+  --color-inverse-primary: #775a00;
+  --color-on-primary-fixed-variant: #5a4300;
+  --color-tertiary-container: #56ceff;
+  --color-secondary-container: #5b460d;
+  --color-surface-dim: #111417;
+  --color-surface-tint: #f6be16;
+  --color-on-primary: #3f2e00;
+  --color-surface-container-low: #191c1f;
+  --color-primary-fixed: #ffdf99;
+  --color-error-container: #93000a;
+  --color-secondary-fixed-dim: #e2c37f;
+  --color-secondary: #e2c37f;
+  --color-surface-bright: #37393d;
+  --color-primary-fixed-dim: #f6be16;
+  --color-on-tertiary-fixed-variant: #004d65;
+  --color-on-tertiary: #003547;
+  --color-on-secondary-container: #d3b572;
+  --color-on-error: #690005;
+  --color-primary-container: #f0b90b;
+  --color-tertiary-fixed-dim: #6cd2ff;
+  --color-secondary-fixed: #ffdf99;
+  --color-on-primary-fixed: #251a00;
+  --color-tertiary-fixed: #bfe9ff;
+  --color-surface-container-high: #272a2e;
+  --color-on-secondary-fixed-variant: #59440b;
+  --color-on-tertiary-container: #005670;
+  --color-on-secondary-fixed: #251a00;
+  --color-surface: #111417;
+  --color-primary: #ffd87f;
+  --color-inverse-on-surface: #2e3134;
+  --color-surface-container-lowest: #0b0e11;
+  --color-surface-container: #1d2023;
+  --color-on-error-container: #ffdad6;
+  --color-background: #111417;
+  --color-on-surface: #e1e2e7;
+  --color-outline: #9b8f79;
+  --color-inverse-surface: #e1e2e7;
+  --color-on-primary-container: #644b00;
+  --color-on-background: #e1e2e7;
+  --color-surface-variant: #323538;
+  --color-tertiary: #b1e4ff;
+  --color-outline-variant: #4f4633;
+  --color-on-surface-variant: #d3c5ac;
+  --color-error: #ffb4ab;
+  --color-surface-container-highest: #323538;
+
+  --font-family-headline: 'Inter', system-ui, sans-serif;
+  --font-family-body: 'Inter', system-ui, sans-serif;
+  --font-family-label: 'Inter', system-ui, sans-serif;
+  --font-family-mono: 'JetBrains Mono', monospace;
+  
+  --radius: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+}
+
+/* ─── Base Styles ──────────────────────────────────────── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-family-body);
+  background: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  overflow: hidden;
+  height: 100vh;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Custom Scrollbar ─────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface-container-lowest);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-variant);
+  border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-outline-variant);
+}
+
+/* ─── Grid Layouts ─────────────────────────────────────── */
+.grid-2x2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 4px;
+  flex: 1;
+}
+
+.grid-spotlight {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 4px;
+  flex: 1;
+}
+
+.grid-spotlight > :first-child {
+  grid-row: 1 / -1;
+}
+
+/* ─── Animations ───────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(240, 185, 11, 0); }
+  50% { box-shadow: 0 0 20px 4px rgba(240, 185, 11, 0.15); }
+}
+
+/* ─── Utilities (Kinetic Ledger) ───────────────────────── */
+.ghost-border {
+  border: 1px solid rgba(155, 143, 121, 0.15);
+}
+.liquid-gold {
+  background: linear-gradient(135deg, #ffd87f 0%, #f0b90b 100%);
+  color: var(--color-on-primary);
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    var(--color-surface-highest) 50%,
+    var(--color-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0px;
+}
+
+/* ─── Markdown Styles (Trade Thesis) ───────────────────── */
+.markdown-body {
+  color: var(--color-text-main);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3 {
+  color: var(--color-text-main);
+  margin-top: 0.8em;
+  margin-bottom: 0.4em;
+  font-weight: 600;
+}
+
+.markdown-body p {
+  margin-bottom: 0.5em;
+}
+
+.markdown-body code {
+  font-family: var(--font-family-mono);
+  background: var(--color-surface-low);
+  padding: 0.15em 0.35em;
+  border-radius: 0px;
+  font-size: 0.8rem;
+}
+
+.markdown-body ul, .markdown-body ol {
+  padding-left: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-body strong {
+  color: var(--color-primary-container);
+}

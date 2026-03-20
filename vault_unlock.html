@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KINETIC LEDGER // Vault Unlock</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary-fixed": "#001f2a",
+                        "on-secondary": "#3f2e00",
+                        "inverse-primary": "#775a00",
+                        "on-primary-fixed-variant": "#5a4300",
+                        "tertiary-container": "#56ceff",
+                        "secondary-container": "#5b460d",
+                        "surface-dim": "#111417",
+                        "surface-tint": "#f6be16",
+                        "on-primary": "#3f2e00",
+                        "surface-container-low": "#191c1f",
+                        "primary-fixed": "#ffdf99",
+                        "error-container": "#93000a",
+                        "secondary-fixed-dim": "#e2c37f",
+                        "secondary": "#e2c37f",
+                        "surface-bright": "#37393d",
+                        "primary-fixed-dim": "#f6be16",
+                        "on-tertiary-fixed-variant": "#004d65",
+                        "on-tertiary": "#003547",
+                        "on-secondary-container": "#d3b572",
+                        "on-error": "#690005",
+                        "primary-container": "#f0b90b",
+                        "tertiary-fixed-dim": "#6cd2ff",
+                        "secondary-fixed": "#ffdf99",
+                        "on-primary-fixed": "#251a00",
+                        "tertiary-fixed": "#bfe9ff",
+                        "surface-container-high": "#272a2e",
+                        "on-secondary-fixed-variant": "#59440b",
+                        "on-tertiary-container": "#005670",
+                        "on-secondary-fixed": "#251a00",
+                        "surface": "#111417",
+                        "primary": "#ffd87f",
+                        "inverse-on-surface": "#2e3134",
+                        "surface-container-lowest": "#0b0e11",
+                        "surface-container": "#1d2023",
+                        "on-error-container": "#ffdad6",
+                        "background": "#111417",
+                        "on-surface": "#e1e2e7",
+                        "outline": "#9b8f79",
+                        "inverse-surface": "#e1e2e7",
+                        "on-primary-container": "#644b00",
+                        "on-background": "#e1e2e7",
+                        "surface-variant": "#323538",
+                        "tertiary": "#b1e4ff",
+                        "outline-variant": "#4f4633",
+                        "on-surface-variant": "#d3c5ac",
+                        "error": "#ffb4ab",
+                        "surface-container-highest": "#323538"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"],
+                        "mono": ["JetBrains Mono"]
+                    },
+                    borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .liquid-gold {
+            background: linear-gradient(135deg, #ffd87f 0%, #f0b90b 100%);
+        }
+        .ghost-border {
+            border: 1px solid rgba(155, 143, 121, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container min-h-screen flex flex-col">
+<!-- Top Navigation Anchor (Non-interactive/Branding) -->
+<header class="bg-[#0b0e11] flex justify-between items-center w-full px-6 py-4 fixed top-0 border-none z-50">
+<div class="text-xl font-black tracking-tighter bg-gradient-to-r from-[#ffd87f] to-[#f0b90b] bg-clip-text text-transparent uppercase">
+            KINETIC LEDGER
+        </div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-[#f0b90b] cursor-help" title="Security Status">security</span>
+<span class="material-symbols-outlined text-[#f0b90b] cursor-help" title="Help">help_outline</span>
+</div>
+</header>
+<main class="flex-grow flex items-center justify-center p-6 relative overflow-hidden">
+<!-- Abstract Tech Pattern Background Element -->
+<div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: radial-gradient(#f0b90b 0.5px, transparent 0.5px); background-size: 24px 24px;"></div>
+<!-- Vault Unlock Card -->
+<section class="w-full max-w-md bg-surface-container-low ghost-border relative z-10 p-10 shadow-2xl">
+<!-- Brand Mark -->
+<div class="flex justify-center mb-8">
+<div class="w-16 h-16 flex items-center justify-center liquid-gold">
+<span class="material-symbols-outlined text-on-primary text-4xl" style="font-variation-settings: 'FILL' 1;">
+                        orbit
+                    </span>
+</div>
+</div>
+<!-- Identity Header -->
+<div class="text-center mb-10">
+<h1 class="font-headline font-black text-2xl uppercase tracking-widest text-on-surface mb-2">
+                    Unlock Vault
+                </h1>
+<p class="font-label text-on-surface-variant text-xs uppercase tracking-wider opacity-70">
+                    Enter your master password to decrypt your API keys
+                </p>
+</div>
+<!-- Authentication Form -->
+<form action="#" class="space-y-8" method="POST">
+<div class="space-y-2">
+<label class="block font-label text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-on-surface-variant" for="vault_password">
+                        Secure Access Key
+                    </label>
+<div class="relative group">
+<input class="w-full bg-[#0b0e11] border-none border-b border-outline-variant focus:ring-0 focus:border-primary-container text-primary font-mono py-4 px-0 transition-all duration-300 placeholder:text-surface-variant" id="vault_password" name="vault_password" placeholder="••••••••••••••••" required="" type="password"/>
+<div class="absolute bottom-0 left-0 w-0 h-[1px] bg-primary group-focus-within:w-full transition-all duration-500"></div>
+</div>
+</div>
+<div class="pt-4">
+<button class="w-full liquid-gold text-on-primary font-headline font-extrabold uppercase tracking-widest py-4 text-sm active:scale-[0.98] transition-transform duration-100 flex items-center justify-center gap-2 group" type="submit">
+<span>Unlock</span>
+<span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</form>
+<!-- Metadata/Status Footnote -->
+<div class="mt-8 pt-8 border-t border-outline-variant/10 text-center">
+<div class="flex items-center justify-center gap-2 text-[#d3c5ac]/40 font-mono text-[10px] tracking-widest uppercase">
+<span class="material-symbols-outlined text-[12px]">memory</span>
+<span>Keys are decrypted in memory only</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Terminal Info -->
+<footer class="bg-[#0b0e11] border-t border-[#323538]/15 flex flex-col md:flex-row justify-between items-center px-8 py-4 w-full gap-4 z-50">
+<div class="font-mono text-[10px] tracking-widest uppercase text-[#d3c5ac]/60">
+            SECURE TERMINAL ACCESS // AES-256 ENCRYPTED
+        </div>
+<nav class="flex gap-6">
+<a class="font-mono text-[10px] tracking-widest uppercase text-[#d3c5ac]/40 hover:text-[#f0b90b] transition-colors" href="#">Terms of Service</a>
+<a class="font-mono text-[10px] tracking-widest uppercase text-[#d3c5ac]/40 hover:text-[#f0b90b] transition-colors" href="#">Privacy Policy</a>
+<a class="font-mono text-[10px] tracking-widest uppercase text-[#d3c5ac]/40 hover:text-[#f0b90b] transition-colors flex items-center gap-1" href="#">
+<span class="w-1.5 h-1.5 bg-[#b1e4ff] rounded-full"></span>
+                System Status
+            </a>
+</nav>
+</footer>
+</body></html>
