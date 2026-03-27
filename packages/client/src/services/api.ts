@@ -16,7 +16,6 @@ import type {
   CryptoQuote,
   ForexRate,
   InsiderTransaction,
-  EconomicEvent,
   SentimentData,
 } from '@orbit/shared';
 
@@ -193,11 +192,6 @@ export const api = {
     getByTicker: (ticker: string) => request<InsiderTransaction[]>(`/insider/${ticker}`),
   },
 
-  // ─── Economic Calendar ──────────────────────────────────
-  economic: {
-    events: () => request<EconomicEvent[]>('/economic'),
-    getAll: () => request<EconomicEvent[]>('/economic'),
-  },
 
   // ─── Sentiment ──────────────────────────────────────────
   sentiment: {

@@ -1,7 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CryptoView } from './CryptoView';
 import { ForexView } from './ForexView';
-import { EconomicView } from './EconomicView';
 import { SentimentView } from './SentimentView';
 
 export function DataExplorer() {
@@ -12,12 +11,10 @@ export function DataExplorer() {
         <TabsList variant="line">
           <TabsTrigger value="crypto">Crypto</TabsTrigger>
           <TabsTrigger value="forex">Forex</TabsTrigger>
-          <TabsTrigger value="economic">Economic</TabsTrigger>
           <TabsTrigger value="sentiment">Sentiment</TabsTrigger>
         </TabsList>
         <TabsContent value="crypto"><CryptoView /></TabsContent>
         <TabsContent value="forex"><ForexView /></TabsContent>
-        <TabsContent value="economic"><EconomicView /></TabsContent>
         <TabsContent value="sentiment"><SentimentView /></TabsContent>
       </Tabs>
     </div>
