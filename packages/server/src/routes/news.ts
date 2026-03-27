@@ -18,10 +18,10 @@ router.get('/:ticker', async (req, res) => {
       const response = await fetch(url);
       const data = await response.json();
       if (Array.isArray(data) && data.length > 0) {
-        const articles: NewsArticle[] = data.slice(0, 20).map((a: any) => ({
+        const articles: NewsArticle[] = data.slice(0, 15).map((a: any) => ({
           id: String(a.id),
           headline: a.headline,
-          summary: a.summary,
+          summary: '',
           source: a.source,
           url: a.url,
           datetime: a.datetime,
@@ -32,27 +32,27 @@ router.get('/:ticker', async (req, res) => {
     } catch {}
   }
 
-  // Fallback: Alpha Vantage NEWS_SENTIMENT
-  const avKey = getApiKey('alpha_vantage');
-  if (avKey) {
-    try {
-      const url = `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${ticker}&limit=20&apikey=${avKey}`;
-      const response = await fetch(url);
-      const data = await response.json();
-      if (data.feed) {
-        const articles: NewsArticle[] = data.feed.slice(0, 20).map((a: any) => ({
-          id: a.url,
-          headline: a.title,
-          summary: a.summary,
-          source: a.source,
-          url: a.url,
-          datetime: Math.floor(new Date(a.time_published?.replace(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})/, '$1-$2-$3T$4:$5:$6')).getTime() / 1000),
-          related: ticker,
-        }));
-        return res.json({ success: true, data: articles } satisfies ApiResponse<NewsArticle[]>);
-      }
-    } catch {}
-  }
+  // Fallback: Yahoo Finance search (includes news, no key needed)
+  try {
+    const url = `https://query1.finance.yahoo.com/v1/finance/search?q=${ticker}&quotesCount=0&newsCount=15`;
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 OrbitTerminal/1.0' },
+    });
+    const data = await response.json();
+    const news = data?.news;
+    if (Array.isArray(news) && news.length > 0) {
+      const articles: NewsArticle[] = news.map((a: any) => ({
+        id: a.uuid || a.link,
+        headline: a.title,
+        summary: '',
+        source: a.publisher || '',
+        url: a.link,
+        datetime: a.providerPublishTime || Math.floor(Date.now() / 1000),
+        related: ticker,
+      }));
+      return res.json({ success: true, data: articles } satisfies ApiResponse<NewsArticle[]>);
+    }
+  } catch {}
 
   res.json({ success: true, data: [] } satisfies ApiResponse<NewsArticle[]>);
 });
