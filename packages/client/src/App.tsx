@@ -340,16 +340,18 @@ function Terminal() {
                     })
                   }
                   isSpotlight={workspace.layout === 'spotlight' && slot.id === 0}
+                  dragHandle={
+                    <div
+                      draggable
+                      onDragStart={() => setDragSlot(i)}
+                      onDragEnd={() => { setDragSlot(null); setOverSlot(null); }}
+                      className="inline-flex cursor-grab active:cursor-grabbing text-muted-foreground/30 hover:text-muted-foreground/60"
+                      title="Drag to rearrange"
+                    >
+                      <span className="material-symbols-outlined !text-xs">drag_indicator</span>
+                    </div>
+                  }
                 />
-                <div
-                  draggable
-                  onDragStart={() => setDragSlot(i)}
-                  onDragEnd={() => { setDragSlot(null); setOverSlot(null); }}
-                  className="absolute bottom-0 right-0 cursor-grab active:cursor-grabbing p-0.5 text-muted-foreground/30 hover:text-muted-foreground/60 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                  title="Drag to rearrange"
-                >
-                  <span className="material-symbols-outlined !text-xs">drag_indicator</span>
-                </div>
               </div>
             ))}
           </div>

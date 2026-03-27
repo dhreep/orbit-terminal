@@ -16,12 +16,13 @@ interface SecuritySlotProps {
   onTickerClear: () => void;
   onChartModeToggle: () => void;
   isSpotlight?: boolean;
+  dragHandle?: React.ReactNode;
 }
 
 type TimeRange = '1W' | '1M' | '3M' | '6M' | '1Y' | '5Y';
 type SlotTab = 'chart' | 'news';
 
-export function SecuritySlot({ slot, onTickerChange, onTickerClear, onChartModeToggle, isSpotlight }: SecuritySlotProps) {
+export function SecuritySlot({ slot, onTickerChange, onTickerClear, onChartModeToggle, isSpotlight, dragHandle }: SecuritySlotProps) {
   const [timeRange, setTimeRange] = useState<TimeRange>('3M');
   const [indicators, setIndicators] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<SlotTab>('chart');
@@ -187,7 +188,12 @@ export function SecuritySlot({ slot, onTickerChange, onTickerClear, onChartModeT
       </div>
 
       <footer className="bg-secondary border-t border-border">
-        <TradeThesis slotId={slot.id} ticker={slot.ticker} />
+        <div className="flex items-start gap-1">
+          <div className="flex-1 min-w-0">
+            <TradeThesis slotId={slot.id} ticker={slot.ticker} />
+          </div>
+          {dragHandle}
+        </div>
       </footer>
     </section>
   );

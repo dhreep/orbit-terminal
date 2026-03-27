@@ -202,15 +202,17 @@
   gap: 4px;
   flex: 1;
   min-height: 0;
+  height: 100%;
 }
 
 .grid-spotlight {
   display: grid;
-  grid-template-columns: 66% 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: repeat(3, 1fr);
   gap: 4px;
   flex: 1;
   min-height: 0;
+  height: 100%;
 }
 
 .grid-spotlight > :first-child {

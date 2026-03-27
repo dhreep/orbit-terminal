@@ -23,12 +23,12 @@ function dailyReturns(closes: number[]): number[] {
   return closes.slice(1).map((c, i) => (c - closes[i]) / closes[i]);
 }
 
-function corrColor(v: number): string {
-  if (v >= 0.7) return 'bg-green-500/40 text-green-300';
-  if (v >= 0.3) return 'bg-green-500/20 text-green-400';
-  if (v > -0.3) return 'bg-muted text-muted-foreground';
-  if (v > -0.7) return 'bg-red-500/20 text-red-400';
-  return 'bg-red-500/40 text-red-300';
+function corrColor(v: number): { bg: string; text: string } {
+  if (Math.abs(v) > 0.99) return { bg: 'transparent', text: 'inherit' };
+  const intensity = Math.pow(Math.abs(v), 1.5);
+  const alpha = Math.round(intensity * 100) / 100;
+  if (v >= 0) return { bg: `rgba(34,197,94,${Math.max(alpha * 0.6, 0.03)})`, text: `rgba(74,222,128,${Math.max(alpha + 0.3, 0.5)})` };
+  return { bg: `rgba(239,68,68,${Math.max(alpha * 0.6, 0.03)})`, text: `rgba(248,113,113,${Math.max(alpha + 0.3, 0.5)})` };
 }
 
 export function CorrelationView() {
@@ -112,7 +112,7 @@ export function CorrelationView() {
                   <tr key={t}>
                     <td className="p-2 font-bold">{t}</td>
                     {matrix[i].map((v, j) => (
-                      <td key={j} className={`p-2 text-center rounded ${corrColor(v)}`}>{v.toFixed(2)}</td>
+                      <td key={j} className="p-2 text-center rounded font-bold" style={{ backgroundColor: corrColor(v).bg, color: corrColor(v).text }}>{v.toFixed(2)}</td>
                     ))}
                   </tr>
                 ))}

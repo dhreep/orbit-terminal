@@ -18,30 +18,34 @@ export function PriceChart({ data, mode, onToggleMode, ticker }: PriceChartProps
   useEffect(() => {
     if (!containerRef.current) return;
     const container = containerRef.current;
-    const styles = getComputedStyle(document.documentElement);
-    const bgColor = styles.getPropertyValue('--orbit-surface-1').trim() || '#191c1f';
+    const isLight = document.documentElement.classList.contains('light');
+    const bgColor = isLight ? '#ffffff' : '#0b0e11';
+    const textColor = isLight ? 'rgba(0,0,0,0.6)' : 'rgba(234,236,239,0.6)';
+    const gridColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(79,70,51,0.15)';
+    const borderColor = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(79,70,51,0.4)';
+    const crossColor = isLight ? 'rgba(240,185,11,0.4)' : 'rgba(240,185,11,0.3)';
 
     const chart = createChart(container, {
       layout: {
         background: { type: ColorType.Solid, color: bgColor },
-        textColor: 'rgba(234, 236, 239, 0.6)',
+        textColor,
         fontFamily: "'Inter', sans-serif",
         fontSize: 11,
       },
       grid: {
-        vertLines: { color: 'rgba(79, 70, 51, 0.15)' },
-        horzLines: { color: 'rgba(79, 70, 51, 0.15)' },
+        vertLines: { color: gridColor },
+        horzLines: { color: gridColor },
       },
       crosshair: {
-        vertLine: { color: 'rgba(240, 185, 11, 0.3)', style: 2 },
-        horzLine: { color: 'rgba(240, 185, 11, 0.3)', style: 2 },
+        vertLine: { color: crossColor, style: 2 },
+        horzLine: { color: crossColor, style: 2 },
       },
       rightPriceScale: {
-        borderColor: 'rgba(79, 70, 51, 0.4)',
+        borderColor,
         scaleMargins: { top: 0.1, bottom: 0.1 },
       },
       timeScale: {
-        borderColor: 'rgba(79, 70, 51, 0.4)',
+        borderColor,
         timeVisible: false,
       },
       handleScroll: true,
