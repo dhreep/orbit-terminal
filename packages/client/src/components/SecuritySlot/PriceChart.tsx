@@ -72,6 +72,10 @@ export function PriceChart({ data, mode, onToggleMode, ticker }: PriceChartProps
       seriesRef.current = null;
     }
 
+    // Deduplicate by time and ensure ascending order
+    const deduped = [...new Map(data.map(d => [d.time, d])).values()]
+      .sort((a, b) => a.time.localeCompare(b.time));
+
     if (mode === 'candle') {
       const series = chart.addCandlestickSeries({
         upColor: '#6cd2ff',
@@ -81,7 +85,7 @@ export function PriceChart({ data, mode, onToggleMode, ticker }: PriceChartProps
         wickDownColor: '#ffb4ab',
         wickUpColor: '#6cd2ff',
       });
-      series.setData(data.map((d) => ({ time: d.time as Time, open: d.open, high: d.high, low: d.low, close: d.close })));
+      series.setData(deduped.map((d) => ({ time: d.time as Time, open: d.open, high: d.high, low: d.low, close: d.close })));
       seriesRef.current = series;
     } else {
       const series = chart.addLineSeries({
@@ -90,7 +94,7 @@ export function PriceChart({ data, mode, onToggleMode, ticker }: PriceChartProps
         crosshairMarkerRadius: 4,
         crosshairMarkerBackgroundColor: '#f0b90b',
       });
-      series.setData(data.map((d) => ({ time: d.time as Time, value: d.close })));
+      series.setData(deduped.map((d) => ({ time: d.time as Time, value: d.close })));
       seriesRef.current = series;
     }
 
