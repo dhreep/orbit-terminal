@@ -13,6 +13,40 @@ function isValidTicker(ticker: string): boolean {
   return TICKER_REGEX.test(ticker);
 }
 
+// Yahoo Finance crumb/cookie management (required since 2024)
+let yahooCrumb: string | null = null;
+let yahooCookie: string | null = null;
+let yahooCrumbExpiry = 0;
+const CRUMB_TTL = 60 * 60 * 1000; // 1 hour
+
+async function getYahooCrumb(): Promise<{ crumb: string; cookie: string } | null> {
+  if (yahooCrumb && yahooCookie && Date.now() < yahooCrumbExpiry) {
+    return { crumb: yahooCrumb, cookie: yahooCookie };
+  }
+  try {
+    const initRes = await fetch('https://fc.yahoo.com', {
+      headers: { 'User-Agent': 'Mozilla/5.0 OrbitTerminal/1.0' },
+      redirect: 'manual',
+    });
+    const cookies = initRes.headers.getSetCookie?.() || [];
+    const cookie = cookies.map(c => c.split(';')[0]).join('; ');
+    if (!cookie) return null;
+
+    const crumbRes = await fetch('https://query2.finance.yahoo.com/v1/test/getcrumb', {
+      headers: { 'User-Agent': 'Mozilla/5.0 OrbitTerminal/1.0', 'Cookie': cookie },
+    });
+    const crumb = await crumbRes.text();
+    if (!crumb || crumb.includes('Unauthorized')) return null;
+
+    yahooCrumb = crumb;
+    yahooCookie = cookie;
+    yahooCrumbExpiry = Date.now() + CRUMB_TTL;
+    return { crumb, cookie };
+  } catch {
+    return null;
+  }
+}
+
 // In-memory store for decrypted API keys (volatile — lost on restart)
 const apiKeys: Map<string, string> = new Map();
 
@@ -212,7 +246,46 @@ router.get('/fundamentals/:ticker', async (req: Request, res: Response) => {
     }
   }
 
-  // --- Tier 3: Yahoo Finance v8 chart meta (company name + price only) ---
+  // --- Tier 3: Yahoo Finance quoteSummary (no API key needed, uses crumb) ---
+  try {
+    const auth = await getYahooCrumb();
+    if (auth) {
+      const summaryUrl = `https://query2.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?modules=defaultKeyStatistics,summaryDetail,assetProfile,financialData,price&crumb=${encodeURIComponent(auth.crumb)}`;
+      const summaryRes = await fetch(summaryUrl, {
+        headers: { 'User-Agent': 'Mozilla/5.0 OrbitTerminal/1.0', 'Cookie': auth.cookie },
+      });
+      const summaryData = await summaryRes.json();
+      const result = summaryData?.quoteSummary?.result?.[0];
+      if (result) {
+        const stats = result.defaultKeyStatistics || {};
+        const detail = result.summaryDetail || {};
+        const profile = result.assetProfile || {};
+        const financial = result.financialData || {};
+        const price = result.price || {};
+
+        const fundamentals: FundamentalRatios = {
+          peRatio: detail.trailingPE?.raw ?? stats.trailingPE?.raw ?? null,
+          pegRatio: stats.pegRatio?.raw ?? null,
+          debtToEquity: financial.debtToEquity?.raw ? financial.debtToEquity.raw / 100 : null,
+          marketCap: price.marketCap?.raw ?? detail.marketCap?.raw ?? null,
+          beta: stats.beta?.raw ?? null,
+          roe: financial.returnOnEquity?.raw ?? null,
+          eps: stats.trailingEps?.raw ?? null,
+          dividendYield: detail.dividendYield?.raw ?? null,
+          currentRatio: financial.currentRatio?.raw ?? null,
+          companyName: price.shortName || price.longName || ticker,
+          sector: profile.sector || 'Unknown',
+          lastUpdated: new Date().toISOString(),
+        };
+        fundamentalsCache.set(ticker, { data: fundamentals, expiry: Date.now() + CACHE_TTL });
+        return res.json({ success: true, data: fundamentals } satisfies ApiResponse<FundamentalRatios>);
+      }
+    }
+  } catch {
+    // Yahoo quoteSummary failed, try chart meta as last resort
+  }
+
+  // --- Tier 4: Yahoo Finance chart meta (company name only, all ratios null) ---
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);
