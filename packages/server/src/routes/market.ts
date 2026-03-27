@@ -8,7 +8,7 @@ const router = Router();
 const fundamentalsCache = new Map<string, { data: FundamentalRatios; expiry: number }>();
 const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
-const TICKER_REGEX = /^[A-Z0-9.\-]{1,10}$/;
+const TICKER_REGEX = /^[A-Z0-9.\-]{1,20}$/;
 function isValidTicker(ticker: string): boolean {
   return TICKER_REGEX.test(ticker);
 }
