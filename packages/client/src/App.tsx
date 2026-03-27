@@ -106,6 +106,10 @@ function Terminal() {
   useHotkeys('mod+a', (e) => { e.preventDefault(); setAlertsOpen((v) => !v); }, { enableOnFormTags: true });
   useHotkeys('mod+z', (e) => { e.preventDefault(); setZenMode((v) => !v); }, { enableOnFormTags: true });
   useHotkeys('escape', () => { setCmdPaletteOpen(false); setWatchlistOpen(false); setAlertsOpen(false); setShowKeyManager(false); if (zenMode) setZenMode(false); });
+  useHotkeys('mod+shift+1', (e) => { e.preventDefault(); document.querySelector<HTMLElement>(`[data-slot="0"] input`)?.focus(); });
+  useHotkeys('mod+shift+2', (e) => { e.preventDefault(); document.querySelector<HTMLElement>(`[data-slot="1"] input`)?.focus(); });
+  useHotkeys('mod+shift+3', (e) => { e.preventDefault(); document.querySelector<HTMLElement>(`[data-slot="2"] input`)?.focus(); });
+  useHotkeys('mod+shift+4', (e) => { e.preventDefault(); document.querySelector<HTMLElement>(`[data-slot="3"] input`)?.focus(); });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -329,7 +333,7 @@ function Terminal() {
             slots={workspace.slots}
             renderSlot={(slot, i) => (
               <div
-                key={slot.id}
+                key={slot.id} data-slot={slot.id}
                 className={cn(
                   'group relative h-full min-h-0',
                   overSlot === i && dragSlot !== null && dragSlot !== i && 'ring-2 ring-primary',
@@ -357,7 +361,7 @@ function Terminal() {
           <div className="h-full p-1 grid-spotlight">
             {workspace.slots.map((slot, i) => (
               <div
-                key={slot.id}
+                key={slot.id} data-slot={slot.id}
                 className={cn(
                   'group relative h-full min-h-0',
                   overSlot === i && dragSlot !== null && dragSlot !== i && 'ring-2 ring-primary',
@@ -416,7 +420,7 @@ function Terminal() {
               ['⌘W', 'Watchlist'],
               ['⌘A', 'Alerts'],
               ['⌘Z', 'Zen Mode'],
-              ['⌘1-4', 'Focus Slot'],
+              ['⌘⇧1-4', 'Focus Slot'],
               ['Esc', 'Close Panels'],
             ] as const).map(([key, desc]) => (
               <div key={key} className="contents">
