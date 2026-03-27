@@ -15,11 +15,12 @@ function fmtLarge(n: number) {
 }
 
 export function CryptoView() {
-  const { data: cryptos = [], isLoading } = useQuery({
+  const { data: rawCryptos, isLoading } = useQuery({
     queryKey: ['crypto-top'],
     queryFn: () => api.crypto.top(50),
     staleTime: 60_000,
   });
+  const cryptos = Array.isArray(rawCryptos) ? rawCryptos : [];
 
   if (isLoading) return <p className="text-muted-foreground text-sm py-6 text-center">Loading crypto data…</p>;
 

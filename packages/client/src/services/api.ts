@@ -173,8 +173,8 @@ export const api = {
 
   // ─── Crypto ─────────────────────────────────────────────
   crypto: {
-    top: (limit = 50) => request<CryptoQuote[]>(`/crypto/top?limit=${limit}`),
-    getAll: () => request<CryptoQuote[]>('/crypto/top'),
+    top: (limit = 50) => request<CryptoQuote[]>(`/crypto`),
+    getAll: () => request<CryptoQuote[]>('/crypto'),
     getChart: (id: string, days: number) =>
       request<Array<{ time: string; price: number }>>(`/crypto/${id}/chart?days=${days}`),
   },
