@@ -161,7 +161,7 @@ export function SecuritySlot({ slot, onTickerChange, onTickerClear, onChartModeT
                 )}
               </div>
               {candles && candles.length > 0 && indicators.length > 0 && (
-                <IndicatorOverlay data={candles} indicators={indicators} />
+                <IndicatorOverlay data={candles} indicators={indicators} timeRange={timeRange} />
               )}
             </>
           )}

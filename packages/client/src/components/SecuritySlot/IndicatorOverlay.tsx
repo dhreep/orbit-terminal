@@ -7,6 +7,7 @@ import type { CandleData } from '@orbit/shared';
 interface IndicatorOverlayProps {
   data: CandleData[];
   indicators: string[];
+  timeRange?: string;
 }
 
 interface IndicatorValue {
@@ -86,13 +87,16 @@ function computeIndicators(data: CandleData[], selected: string[]): IndicatorVal
   return results;
 }
 
-export function IndicatorOverlay({ data, indicators }: IndicatorOverlayProps) {
+export function IndicatorOverlay({ data, indicators, timeRange }: IndicatorOverlayProps) {
   const values = useMemo(() => computeIndicators(data, indicators), [data, indicators]);
 
   if (indicators.length === 0 || values.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap gap-1 px-2 py-1 bg-card border-t border-border">
+    <div className="flex flex-wrap items-center gap-1 px-2 py-1 bg-card border-t border-border">
+      {timeRange && (
+        <span className="text-[8px] font-mono text-muted-foreground/50 mr-1">{timeRange}·{data.length}pts</span>
+      )}
       {values.map((v) => (
         <Badge key={v.label} variant="outline" className={cn('text-[9px] font-mono px-1.5 py-0 h-4', v.color ?? 'text-muted-foreground')}>
           {v.label}: {v.value}
