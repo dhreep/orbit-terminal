@@ -7,22 +7,27 @@ interface ResizableGridProps {
 }
 
 export function ResizableGrid({ slots, renderSlot }: ResizableGridProps) {
-  const [colSplit, setColSplit] = useState(50); // percentage for left column
-  const [rowSplit, setRowSplit] = useState(50); // percentage for top row
+  const [colPct, setColPct] = useState(50);
+  const [rowPct, setRowPct] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleColDrag = useCallback((e: React.MouseEvent) => {
+  const startDrag = useCallback((axis: 'col' | 'row', e: React.MouseEvent) => {
     e.preventDefault();
     const container = containerRef.current;
     if (!container) return;
-    const startX = e.clientX;
-    const startSplit = colSplit;
     const rect = container.getBoundingClientRect();
+    const cursor = axis === 'col' ? 'col-resize' : 'row-resize';
+    document.body.style.cursor = cursor;
+    document.body.style.userSelect = 'none';
 
     const onMove = (ev: MouseEvent) => {
-      const dx = ev.clientX - startX;
-      const pct = startSplit + (dx / rect.width) * 100;
-      setColSplit(Math.max(20, Math.min(80, pct)));
+      if (axis === 'col') {
+        const pct = ((ev.clientX - rect.left) / rect.width) * 100;
+        setColPct(Math.max(15, Math.min(85, pct)));
+      } else {
+        const pct = ((ev.clientY - rect.top) / rect.height) * 100;
+        setRowPct(Math.max(15, Math.min(85, pct)));
+      }
     };
     const onUp = () => {
       document.removeEventListener('mousemove', onMove);
@@ -30,72 +35,33 @@ export function ResizableGrid({ slots, renderSlot }: ResizableGridProps) {
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
     };
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
-  }, [colSplit]);
+  }, []);
 
-  const handleRowDrag = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    const container = containerRef.current;
-    if (!container) return;
-    const startY = e.clientY;
-    const startSplit = rowSplit;
-    const rect = container.getBoundingClientRect();
-
-    const onMove = (ev: MouseEvent) => {
-      const dy = ev.clientY - startY;
-      const pct = startSplit + (dy / rect.height) * 100;
-      setRowSplit(Math.max(20, Math.min(80, pct)));
-    };
-    const onUp = () => {
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-    };
-    document.body.style.cursor = 'row-resize';
-    document.body.style.userSelect = 'none';
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
-  }, [rowSplit]);
+  // Use calc to split available space minus the 4px divider
+  const cols = `calc(${colPct}% - 2px) 4px calc(${100 - colPct}% - 2px)`;
+  const rows = `calc(${rowPct}% - 2px) 4px calc(${100 - rowPct}% - 2px)`;
 
   return (
-    <div ref={containerRef} className="h-full p-1 relative" style={{ display: 'grid', gridTemplateColumns: `${colSplit}% 6px 1fr`, gridTemplateRows: `${rowSplit}% 6px 1fr`, gap: 0 }}>
-      {/* Slot 0 - top left */}
+    <div
+      ref={containerRef}
+      className="h-full w-full"
+      style={{ display: 'grid', gridTemplateColumns: cols, gridTemplateRows: rows }}
+    >
+      {/* Row 1 */}
       <div className="overflow-hidden min-h-0 min-w-0">{renderSlot(slots[0], 0)}</div>
-
-      {/* Vertical divider (top) */}
-      <div className="cursor-col-resize flex items-center justify-center hover:bg-primary/20 transition-colors" onMouseDown={handleColDrag} style={{ gridRow: '1' }}>
-        <div className="w-[2px] h-8 bg-border rounded-full" />
-      </div>
-
-      {/* Slot 1 - top right */}
+      <div className="cursor-col-resize hover:bg-primary/20 transition-colors" onMouseDown={(e) => startDrag('col', e)} />
       <div className="overflow-hidden min-h-0 min-w-0">{renderSlot(slots[1], 1)}</div>
 
-      {/* Horizontal divider */}
-      <div className="cursor-row-resize flex items-center justify-center hover:bg-primary/20 transition-colors" onMouseDown={handleRowDrag} style={{ gridColumn: '1' }}>
-        <div className="h-[2px] w-8 bg-border rounded-full" />
-      </div>
+      {/* Divider row */}
+      <div className="cursor-row-resize hover:bg-primary/20 transition-colors" onMouseDown={(e) => startDrag('row', e)} />
+      <div className="cursor-move hover:bg-primary/30 transition-colors" onMouseDown={(e) => { startDrag('col', e); startDrag('row', e); }} />
+      <div className="cursor-row-resize hover:bg-primary/20 transition-colors" onMouseDown={(e) => startDrag('row', e)} />
 
-      {/* Center intersection */}
-      <div className="cursor-move" onMouseDown={(e) => { handleColDrag(e); handleRowDrag(e); }} />
-
-      {/* Horizontal divider (right) */}
-      <div className="cursor-row-resize flex items-center justify-center hover:bg-primary/20 transition-colors" onMouseDown={handleRowDrag} style={{ gridColumn: '3' }}>
-        <div className="h-[2px] w-8 bg-border rounded-full" />
-      </div>
-
-      {/* Slot 2 - bottom left */}
+      {/* Row 2 */}
       <div className="overflow-hidden min-h-0 min-w-0">{renderSlot(slots[2], 2)}</div>
-
-      {/* Vertical divider (bottom) */}
-      <div className="cursor-col-resize flex items-center justify-center hover:bg-primary/20 transition-colors" onMouseDown={handleColDrag} style={{ gridRow: '3' }}>
-        <div className="w-[2px] h-8 bg-border rounded-full" />
-      </div>
-
-      {/* Slot 3 - bottom right */}
+      <div className="cursor-col-resize hover:bg-primary/20 transition-colors" onMouseDown={(e) => startDrag('col', e)} />
       <div className="overflow-hidden min-h-0 min-w-0">{renderSlot(slots[3], 3)}</div>
     </div>
   );
