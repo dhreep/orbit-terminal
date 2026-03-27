@@ -5,6 +5,7 @@ import type { ApiProvider } from '@orbit/shared';
 const PROVIDERS: { id: ApiProvider; label: string; description: string }[] = [
   { id: 'alpha_vantage', label: 'Alpha Vantage', description: 'Price & technical data (candles, indicators)' },
   { id: 'fmp', label: 'Financial Modeling Prep', description: 'Fundamental ratios (P/E, PEG, D/E)' },
+  { id: 'finnhub', label: 'Finnhub', description: 'News, earnings, insider trading, economic calendar' },
 ];
 
 export function ApiKeyManager({ onClose }: { onClose: () => void }) {
