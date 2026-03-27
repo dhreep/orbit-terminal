@@ -59,6 +59,9 @@ export function TradeThesis({ slotId, ticker }: TradeThesisProps) {
           {!saved && (
             <span className="text-[8px] font-mono text-primary animate-pulse">SAVING...</span>
           )}
+          <a href="https://www.markdownguide.org/cheat-sheet/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground/40 hover:text-muted-foreground" title="Markdown formatting guide" onClick={(e) => e.stopPropagation()}>
+            <span className="material-symbols-outlined !text-xs">help_outline</span>
+          </a>
         </div>
         <span className="material-symbols-outlined !text-xs text-muted-foreground">
           {isEditing ? 'keyboard_arrow_up' : 'expand_more'}

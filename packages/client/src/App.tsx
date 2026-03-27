@@ -14,6 +14,7 @@ import { ExportButton } from './components/Export/ExportButton';
 import { DemoProvider, useDemo } from './components/Demo/DemoProvider';
 import { useTheme } from './hooks/useTheme';
 import { Badge } from './components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './components/ui/dialog';
 import { cn } from './lib/utils';
 import { api } from './services/api';
 import { PortfolioView } from './components/Portfolio/PortfolioView';
@@ -191,12 +192,15 @@ function Terminal() {
     }
   }, []);
 
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+
   const handleAction = useCallback((action: string) => {
     if (action === 'export') handleExport();
     else if (action === 'lock') vault.lockVault();
     else if (action === 'toggleLayout') toggleLayout();
     else if (action === 'zenMode') setZenMode((v) => !v);
     else if (action === 'toggleTheme') toggleTheme();
+    else if (action === 'shortcuts') setShortcutsOpen(true);
   }, [handleExport, vault, toggleLayout, toggleTheme]);
 
   // ─── Vault gates ────────────────────────────────────────
@@ -273,8 +277,10 @@ function Terminal() {
         </div>
         <div className="flex items-center gap-1 h-full">
           <div className="flex border-r border-border pr-2 mr-2 gap-1">
-            <button onClick={() => setCmdPaletteOpen(true)} className="p-2 text-muted-foreground hover:bg-accent transition-colors" title="Command Palette (⌘K)" aria-label="Open command palette">
-              <span className="material-symbols-outlined">search</span>
+            <button onClick={() => setCmdPaletteOpen(true)} className="flex items-center gap-2 px-3 py-1 text-muted-foreground hover:bg-accent transition-colors border border-border text-xs font-mono" title="Command Palette (⌘K)" aria-label="Open command palette">
+              <span className="material-symbols-outlined !text-sm">search</span>
+              <span className="text-muted-foreground/50">Search...</span>
+              <kbd className="text-[10px] bg-muted px-1.5 py-0.5 text-muted-foreground border border-border">⌘K</kbd>
             </button>
             <button onClick={() => setWatchlistOpen(true)} className="p-2 text-muted-foreground hover:bg-accent transition-colors" title="Watchlist (⌘W)" aria-label="Toggle watchlist">
               <span className="material-symbols-outlined">bookmark</span>
@@ -399,6 +405,28 @@ function Terminal() {
       <CommandPalette open={cmdPaletteOpen} onOpenChange={setCmdPaletteOpen} onSelectTicker={handleSelectTicker} onNavigate={handleNavigate} onAction={handleAction} />
       <WatchlistPanel open={watchlistOpen} onOpenChange={setWatchlistOpen} />
       <AlertsPanel open={alertsOpen} onOpenChange={setAlertsOpen} />
+      <Dialog open={shortcutsOpen} onOpenChange={setShortcutsOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-sm font-bold uppercase tracking-widest">Keyboard Shortcuts</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm font-mono">
+            {([
+              ['⌘K', 'Command Palette'],
+              ['⌘W', 'Watchlist'],
+              ['⌘A', 'Alerts'],
+              ['⌘Z', 'Zen Mode'],
+              ['⌘1-4', 'Focus Slot'],
+              ['Esc', 'Close Panels'],
+            ] as const).map(([key, desc]) => (
+              <div key={key} className="contents">
+                <kbd className="text-xs bg-muted px-2 py-1 text-center border border-border">{key}</kbd>
+                <span className="text-muted-foreground flex items-center">{desc}</span>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

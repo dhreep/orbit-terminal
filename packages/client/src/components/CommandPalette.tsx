@@ -88,6 +88,7 @@ export function CommandPalette({ open, onOpenChange, onSelectTicker, onNavigate,
               ['toggleLayout', 'Toggle Layout'],
               ['zenMode', 'Toggle Zen Mode'],
               ['toggleTheme', 'Toggle Dark/Light Theme'],
+              ['shortcuts', 'Show Keyboard Shortcuts'],
             ] as const).map(([action, label]) => (
               <CommandItem key={action} onSelect={() => select(() => onAction(action))}>
                 <span>{label}</span>
