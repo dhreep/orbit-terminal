@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../services/api';
 import { PriceChart } from './PriceChart';
 import { RatioSidebar } from './RatioSidebar';
@@ -47,10 +47,16 @@ export function SecuritySlot({ slot, onTickerChange, onTickerClear, onChartModeT
     retryDelay: (attemptIndex) => Math.min(15000 * (attemptIndex + 1), 60000),
   });
 
+  const queryClient = useQueryClient();
+  const addToWatchlist = useMutation({
+    mutationFn: (ticker: string) => api.watchlist.add(ticker),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['watchlist'] }),
+  });
+
   if (!slot.ticker) {
     return (
-      <section className="flex flex-col bg-card border border-border overflow-hidden">
-        <header className="h-8 flex items-center justify-between px-2 bg-secondary border-b border-border">
+      <section className="flex flex-col bg-card border border-border overflow-visible">
+        <header className="h-8 flex items-center justify-between px-2 bg-secondary border-b border-border relative z-20">
           <div className="flex items-center gap-3">
             <span className="text-[10px] font-bold text-primary tracking-tighter font-mono">SLOT_{String(slot.id + 1).padStart(2, '0')}</span>
             <TickerSearch currentTicker={null} onSelect={onTickerChange} />
@@ -70,14 +76,22 @@ export function SecuritySlot({ slot, onTickerChange, onTickerClear, onChartModeT
   const TIME_RANGES: TimeRange[] = ['1W', '1M', '3M', '6M', '1Y', '5Y'];
 
   return (
-    <section className="flex flex-col bg-card border border-border overflow-hidden">
-      <header className="h-8 flex items-center justify-between px-2 bg-secondary border-b border-border">
+    <section className="flex flex-col bg-card border border-border overflow-visible">
+      <header className="h-8 flex items-center justify-between px-2 bg-secondary border-b border-border relative z-20">
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-bold text-primary tracking-tighter font-mono">SLOT_{String(slot.id + 1).padStart(2, '0')}</span>
           <TickerSearch currentTicker={slot.ticker} onSelect={onTickerChange} />
           <span className="text-[10px] font-mono text-orbit-info truncate max-w-[180px] hidden sm:inline" title={displayName}>
             {displayName}
           </span>
+          <button
+            onClick={() => addToWatchlist.mutate(slot.ticker!)}
+            className="p-0.5 text-muted-foreground hover:text-primary transition-colors"
+            title="Add to watchlist"
+            aria-label="Add to watchlist"
+          >
+            <span className="material-symbols-outlined !text-sm">bookmark_add</span>
+          </button>
         </div>
         <div className="flex items-center gap-1">
           <div className="flex items-center border border-border mr-1">

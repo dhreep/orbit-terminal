@@ -323,7 +323,7 @@ function Terminal() {
               <div
                 key={slot.id}
                 className={cn(
-                  'relative',
+                  'group relative h-full min-h-0',
                   overSlot === i && dragSlot !== null && dragSlot !== i && 'ring-2 ring-primary',
                 )}
                 onDragOver={(e) => { e.preventDefault(); setOverSlot(i); }}
@@ -345,10 +345,10 @@ function Terminal() {
                   draggable
                   onDragStart={() => setDragSlot(i)}
                   onDragEnd={() => { setDragSlot(null); setOverSlot(null); }}
-                  className="absolute bottom-1 right-1 cursor-grab active:cursor-grabbing p-1 text-muted-foreground/30 hover:text-muted-foreground/60 z-10"
+                  className="absolute bottom-0 right-0 cursor-grab active:cursor-grabbing p-0.5 text-muted-foreground/30 hover:text-muted-foreground/60 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                   title="Drag to rearrange"
                 >
-                  <span className="material-symbols-outlined !text-sm">drag_indicator</span>
+                  <span className="material-symbols-outlined !text-xs">drag_indicator</span>
                 </div>
               </div>
             ))}

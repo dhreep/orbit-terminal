@@ -14,7 +14,19 @@ export function ForexView() {
 
   const { data: rates = [], isLoading } = useQuery({
     queryKey: ['forex-rates', from],
-    queryFn: () => api.forex.rates(from),
+    queryFn: async () => {
+      const serverRates = await api.forex.rates(from);
+      if (serverRates.length > 0) return serverRates;
+      // Fallback: fetch directly from Frankfurter if server returns empty
+      const res = await fetch(`https://api.frankfurter.app/latest?base=${from}`);
+      const json = await res.json();
+      return Object.entries(json.rates || {}).map(([quote, rate]) => ({
+        base: json.base || from,
+        quote,
+        rate: rate as number,
+        date: json.date || '',
+      }));
+    },
     staleTime: 60_000,
   });
 

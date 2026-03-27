@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import type { ApiResponse, ForexRate, CandleData } from '@orbit/shared';
 
 const router = Router();
-const FRANKFURTER = 'https://api.frankfurter.dev';
+const FRANKFURTER = 'https://api.frankfurter.app';
 
 // GET /latest?base=USD — Latest rates
 router.get('/latest', async (req: Request, res: Response) => {

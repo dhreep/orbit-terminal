@@ -42,7 +42,6 @@ export function TickerAutocomplete({ value, onChange, placeholder = 'AAPL', clas
 
   const handleChange = (v: string) => {
     setQuery(v);
-    onChange(v);
     setIsOpen(true);
     setSelectedIndex(-1);
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -50,7 +49,7 @@ export function TickerAutocomplete({ value, onChange, placeholder = 'AAPL', clas
   };
 
   const handleSelect = (symbol: string) => {
-    setQuery(symbol);
+    setQuery('');
     onChange(symbol);
     setIsOpen(false);
     setResults([]);
@@ -58,6 +57,12 @@ export function TickerAutocomplete({ value, onChange, placeholder = 'AAPL', clas
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen || results.length === 0) {
+      if (e.key === 'Enter' && query.trim()) {
+        e.preventDefault();
+        onChange(query.trim().toUpperCase());
+        setQuery('');
+        setResults([]);
+      }
       if (e.key === 'Escape') setIsOpen(false);
       return;
     }
@@ -67,6 +72,7 @@ export function TickerAutocomplete({ value, onChange, placeholder = 'AAPL', clas
       case 'Enter':
         e.preventDefault();
         if (selectedIndex >= 0) handleSelect(results[selectedIndex].symbol);
+        else if (query.trim()) { onChange(query.trim().toUpperCase()); setQuery(''); setResults([]); }
         break;
       case 'Escape': setIsOpen(false); break;
     }

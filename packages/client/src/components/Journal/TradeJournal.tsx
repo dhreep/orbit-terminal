@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/services/api';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -23,19 +23,27 @@ export function TradeJournal() {
   const qc = useQueryClient();
   const { data: trades = [] } = useQuery({ queryKey: ['journal'], queryFn: api.journal.getAll });
 
-  const [form, setForm] = useState({ ticker: '', entryPrice: '', entryDate: '', shares: '', thesis: '' });
+  const [form, setForm] = useState({ ticker: '', entryPrice: '', entryDate: new Date().toISOString().split('T')[0], shares: '', thesis: '' });
+  const [autoPrice, setAutoPrice] = useState<number | null>(null);
   const [closing, setClosing] = useState<TradeJournalEntry | null>(null);
   const [closeForm, setCloseForm] = useState({ exitPrice: '', exitDate: '', outcome: '' });
+
+  useEffect(() => {
+    if (!form.ticker) { setAutoPrice(null); return; }
+    api.market.getCandles(form.ticker, '1W').then(candles => {
+      if (candles.length > 0) setAutoPrice(candles[candles.length - 1].close);
+    }).catch(() => {});
+  }, [form.ticker]);
 
   const createMut = useMutation({
     mutationFn: () => api.journal.create({
       ticker: form.ticker.toUpperCase(),
-      entryPrice: +form.entryPrice,
+      entryPrice: +form.entryPrice || autoPrice || 0,
       entryDate: form.entryDate || new Date().toISOString().split('T')[0],
       shares: +form.shares,
       thesis: form.thesis,
     }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['journal'] }); setForm({ ticker: '', entryPrice: '', entryDate: '', shares: '', thesis: '' }); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['journal'] }); setForm({ ticker: '', entryPrice: '', entryDate: new Date().toISOString().split('T')[0], shares: '', thesis: '' }); setAutoPrice(null); },
   });
 
   const closeMut = useMutation({
@@ -55,11 +63,17 @@ export function TradeJournal() {
       <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Trade Journal</h2>
 
       {/* New Trade Form */}
-      <form className="flex gap-2 items-end flex-wrap" onSubmit={(e) => { e.preventDefault(); if (form.ticker && form.entryPrice && form.shares) createMut.mutate(); }}>
-        <TickerAutocomplete value={form.ticker} onChange={(v) => setForm((f) => ({ ...f, ticker: v }))} placeholder="Ticker" className="w-24" />
-        <Input placeholder="Entry Price" type="number" step="0.01" value={form.entryPrice} onChange={(e) => setForm((f) => ({ ...f, entryPrice: e.target.value }))} className="w-28" />
+      <form className="flex gap-2 items-end flex-wrap" onSubmit={(e) => { e.preventDefault(); if (form.ticker && form.shares) createMut.mutate(); }}>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-muted-foreground">Ticker <span className="text-destructive">*</span></label>
+          <TickerAutocomplete value={form.ticker} onChange={(v) => setForm((f) => ({ ...f, ticker: v }))} placeholder="Ticker" className="w-24" />
+        </div>
+        <Input placeholder={autoPrice ? `$${autoPrice.toFixed(2)}` : 'Entry Price'} type="number" step="0.01" value={form.entryPrice} onChange={(e) => setForm((f) => ({ ...f, entryPrice: e.target.value }))} className="w-28" />
         <Input type="date" value={form.entryDate} onChange={(e) => setForm((f) => ({ ...f, entryDate: e.target.value }))} className="w-36" />
-        <Input placeholder="Shares" type="number" value={form.shares} onChange={(e) => setForm((f) => ({ ...f, shares: e.target.value }))} className="w-24" />
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-muted-foreground">Quantity <span className="text-destructive">*</span></label>
+          <Input placeholder="Shares" type="number" value={form.shares} onChange={(e) => setForm((f) => ({ ...f, shares: e.target.value }))} className="w-24" />
+        </div>
         <Textarea placeholder="Thesis…" value={form.thesis} onChange={(e) => setForm((f) => ({ ...f, thesis: e.target.value }))} className="w-60 min-h-8 h-8" />
         <Button type="submit" size="sm" disabled={createMut.isPending}>New Trade</Button>
       </form>

@@ -184,7 +184,7 @@ export const api = {
     rates: (base = 'USD') => request<ForexRate[]>(`/forex/latest?base=${base}`),
     getLatest: (base: string) => request<ForexRate[]>(`/forex/latest?base=${base}`),
     getHistory: (base: string, quote: string, days: number) =>
-      request<ForexRate[]>(`/forex/history?base=${base}&quote=${quote}&days=${days}`),
+      request<import('@orbit/shared').CandleData[]>(`/forex/history?base=${base}&quote=${quote}&days=${days}`),
   },
 
   // ─── Insider Trading ────────────────────────────────────
