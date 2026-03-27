@@ -38,7 +38,7 @@ export function VaultSetup({ onSetup }: VaultSetupProps) {
       {/* Top Navigation Anchor */}
       <header className="bg-[#0b0e11] flex justify-between items-center w-full px-6 py-4 fixed top-0 border-none z-50">
         <div className="text-xl font-black tracking-tighter bg-gradient-to-r from-[#ffd87f] to-[#f0b90b] bg-clip-text text-transparent uppercase">
-          KINETIC LEDGER
+          ORBIT TERMINAL
         </div>
         <div className="flex gap-4">
           <span className="material-symbols-outlined text-[#f0b90b] cursor-help" title="Security Status">security</span>

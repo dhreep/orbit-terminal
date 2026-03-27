@@ -55,6 +55,7 @@ export function TradeThesis({ slotId, ticker }: TradeThesisProps) {
       <div 
         className="flex items-center justify-between px-2 h-6 cursor-pointer hover:bg-[#323538]/10 transition-colors"
         onClick={() => setIsEditing(!isEditing)}
+        aria-expanded={isEditing}
       >
         <div className="flex items-center gap-2">
           <span className="text-[9px] font-bold tracking-widest text-on-surface-variant">TRADE THESIS // ACTIVE</span>

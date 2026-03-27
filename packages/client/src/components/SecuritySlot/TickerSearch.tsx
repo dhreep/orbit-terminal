@@ -18,11 +18,13 @@ export function TickerSearch({ currentTicker, onSelect }: TickerSearchProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-
   const retryRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  const showResults = isOpen && query.length > 0;
 
   const searchTicker = useCallback(async (q: string, retryCount = 0) => {
     if (q.length < 1) {
@@ -35,7 +37,6 @@ export function TickerSearch({ currentTicker, onSelect }: TickerSearchProps) {
     try {
       const data = await api.market.search(q);
       if (data.length === 0 && retryCount === 0) {
-        // Could be a transient issue, retry once after a short delay
         setError('SEARCHING... (RETRY)');
         retryRef.current = setTimeout(() => searchTicker(q, 1), 3000);
         return;
@@ -80,7 +81,40 @@ export function TickerSearch({ currentTicker, onSelect }: TickerSearchProps) {
   const handleSelect = (symbol: string) => {
     setQuery('');
     setIsOpen(false);
+    setSelectedIndex(-1);
     onSelect(symbol);
+  };
+
+  // Reset selectedIndex when results change
+  useEffect(() => {
+    setSelectedIndex(-1);
+  }, [results]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!showResults || results.length === 0) {
+      if (e.key === 'Escape') { setIsOpen(false); }
+      return;
+    }
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedIndex(i => Math.min(i + 1, results.length - 1));
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedIndex(i => Math.max(i - 1, 0));
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (selectedIndex >= 0 && selectedIndex < results.length) {
+          handleSelect(results[selectedIndex].symbol);
+        }
+        break;
+      case 'Escape':
+        setIsOpen(false);
+        setSelectedIndex(-1);
+        break;
+    }
   };
 
   // Close on click outside
@@ -93,6 +127,8 @@ export function TickerSearch({ currentTicker, onSelect }: TickerSearchProps) {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  const hasResults = showResults && results.length > 0;
 
   return (
     <div ref={containerRef} className="relative flex items-center">
@@ -110,12 +146,16 @@ export function TickerSearch({ currentTicker, onSelect }: TickerSearchProps) {
           }
           setIsOpen(true);
         }}
+        onKeyDown={handleKeyDown}
         placeholder="SEARCH"
+        role="combobox"
+        aria-expanded={hasResults}
+        aria-autocomplete="list"
         className={`bg-surface-container-lowest border-none text-[11px] font-mono h-6 w-32 focus:ring-1 focus:ring-primary-container uppercase text-primary outline-none transition-all ${currentTicker ? 'pl-2' : 'pl-5'}`}
       />
 
-      {isOpen && (query.length > 0) && (
-        <div className="absolute top-full left-0 mt-1 w-64 shadow-xl z-50 overflow-hidden border border-surface-variant/15 bg-surface-container-low">
+      {showResults && (
+        <div className="absolute top-full left-0 mt-1 w-64 shadow-xl z-50 overflow-hidden border border-surface-variant/15 bg-surface-container-low" role="listbox">
           {loading ? (
             <div className="p-3 text-xs uppercase tracking-widest text-on-surface-variant">Searching…</div>
           ) : error ? (
@@ -126,11 +166,13 @@ export function TickerSearch({ currentTicker, onSelect }: TickerSearchProps) {
           ) : results.length === 0 ? (
             <div className="p-3 text-xs uppercase tracking-widest text-on-surface-variant">No results found</div>
           ) : (
-            results.map((r) => (
+            results.map((r, i) => (
               <button
                 key={r.symbol}
+                role="option"
+                aria-selected={i === selectedIndex}
                 onClick={() => handleSelect(r.symbol)}
-                className="w-full text-left px-3 py-2 text-xs transition-colors hover:bg-surface flex items-center justify-between border-b border-surface-variant/15 last:border-b-0"
+                className={`w-full text-left px-3 py-2 text-xs transition-colors hover:bg-surface flex items-center justify-between border-b border-surface-variant/15 last:border-b-0 ${i === selectedIndex ? 'bg-surface' : ''}`}
               >
                 <div>
                   <span className="font-mono font-bold tracking-widest uppercase text-primary">{r.symbol}</span>

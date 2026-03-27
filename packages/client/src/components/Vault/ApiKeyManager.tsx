@@ -27,7 +27,7 @@ export function ApiKeyManager({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(2px)' }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(2px)' }} role="dialog" aria-modal="true" aria-label="API Key Manager" onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}>
       <div className="animate-fade-in w-full max-w-lg ghost-border" style={{ background: 'var(--color-surface-highest)' }}>
         <div className="flex items-center justify-between p-5 border-b ghost-border" style={{ borderTop: 'none', borderLeft: 'none', borderRight: 'none' }}>
           <h2 className="font-bold text-lg uppercase tracking-widest" style={{ color: 'var(--color-text-main)' }}>API Key Vault</h2>
