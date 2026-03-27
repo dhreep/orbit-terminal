@@ -24,7 +24,7 @@ function getRatioColor(label: string, value: number | null): string {
   if (value === null) return 'text-muted-foreground';
   switch (label) {
     case 'P/E': return value < 15 ? 'text-orbit-gain' : value < 25 ? 'text-primary' : 'text-orbit-loss';
-    case 'PEG': return value < 1 ? 'text-orbit-gain' : value < 2 ? 'text-primary' : 'text-orbit-loss';
+    case '52W': return value > 0 ? 'text-orbit-gain' : 'text-orbit-loss';
     case 'D/E': return value < 1 ? 'text-orbit-gain' : value < 2 ? 'text-primary' : 'text-orbit-loss';
     case 'ROE': return value > 0.15 ? 'text-orbit-gain' : value > 0.05 ? 'text-primary' : 'text-orbit-loss';
     case 'C/R': return value > 1.5 ? 'text-orbit-gain' : value > 1 ? 'text-primary' : 'text-orbit-loss';
@@ -66,7 +66,7 @@ export function RatioSidebar({ data, loading, error }: RatioSidebarProps) {
 
   const ratios = [
     { label: 'P/E', value: data?.peRatio, format: (v: number | null) => formatNumber(v) },
-    { label: 'PEG', value: data?.pegRatio, format: (v: number | null) => formatNumber(v) },
+    { label: '52W', value: data?.fiftyTwoWeekChange, format: (v: number | null) => formatPercent(v) },
     { label: 'D/E', value: data?.debtToEquity, format: (v: number | null) => formatNumber(v) },
     { label: 'ROE', value: data?.roe, format: (v: number | null) => formatPercent(v) },
     { label: 'EPS', value: data?.eps, format: (v: number | null) => formatNumber(v) },

@@ -196,6 +196,7 @@ router.get('/fundamentals/:ticker', async (req: Request, res: Response) => {
         const fundamentals: FundamentalRatios = {
           peRatio: ratios?.peRatioTTM ?? profile?.pe ?? null,
           pegRatio: ratios?.pegRatioTTM ?? null,
+          fiftyTwoWeekChange: null,
           debtToEquity: ratios?.debtEquityRatioTTM ?? null,
           marketCap: profile?.mktCap ?? null,
           beta: profile?.beta ?? null,
@@ -227,6 +228,7 @@ router.get('/fundamentals/:ticker', async (req: Request, res: Response) => {
         const fundamentals: FundamentalRatios = {
           peRatio: data['TrailingPE'] ? parseFloat(data['TrailingPE']) : null,
           pegRatio: data['PEGRatio'] ? parseFloat(data['PEGRatio']) : null,
+          fiftyTwoWeekChange: null,
           debtToEquity: null,
           marketCap: data['MarketCapitalization'] ? parseFloat(data['MarketCapitalization']) : null,
           beta: data['Beta'] ? parseFloat(data['Beta']) : null,
@@ -266,6 +268,7 @@ router.get('/fundamentals/:ticker', async (req: Request, res: Response) => {
         const fundamentals: FundamentalRatios = {
           peRatio: detail.trailingPE?.raw ?? stats.trailingPE?.raw ?? null,
           pegRatio: stats.pegRatio?.raw ?? null,
+          fiftyTwoWeekChange: stats['52WeekChange']?.raw ?? null,
           debtToEquity: financial.debtToEquity?.raw ? financial.debtToEquity.raw / 100 : null,
           marketCap: price.marketCap?.raw ?? detail.marketCap?.raw ?? null,
           beta: stats.beta?.raw ?? null,
@@ -302,6 +305,7 @@ router.get('/fundamentals/:ticker', async (req: Request, res: Response) => {
       const fundamentals: FundamentalRatios = {
         peRatio: null,
         pegRatio: null,
+        fiftyTwoWeekChange: null,
         debtToEquity: null,
         marketCap: null,
         beta: null,

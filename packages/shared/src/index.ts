@@ -11,6 +11,7 @@ export interface CandleData {
 export interface FundamentalRatios {
   peRatio: number | null;
   pegRatio: number | null;
+  fiftyTwoWeekChange: number | null;
   debtToEquity: number | null;
   marketCap: number | null;
   beta: number | null;
