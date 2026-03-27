@@ -11,14 +11,24 @@
   },
   "dependencies": {
     "@orbit/shared": "*",
+    "@tanstack/react-table": "^8.21.3",
     "better-sqlite3": "^11.8.1",
+    "cmdk": "^1.1.1",
     "cors": "^2.8.5",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.7",
+    "node-cron": "^4.2.1",
+    "react-hotkeys-hook": "^5.2.4",
+    "recharts": "^3.8.1",
+    "sentiment": "^5.0.2",
+    "trading-signals": "^7.4.3"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.12",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
+    "@types/node-cron": "^3.0.11",
     "tsx": "^4.19.2",
     "vitest": "^3.0.7"
   }
