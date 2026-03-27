@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 
 interface VaultSetupProps {
   onSetup: (password: string) => Promise<void>;
+  onTryDemo?: () => void;
 }
 
-export function VaultSetup({ onSetup }: VaultSetupProps) {
+export function VaultSetup({ onSetup, onTryDemo }: VaultSetupProps) {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
@@ -125,6 +126,18 @@ export function VaultSetup({ onSetup }: VaultSetupProps) {
               {!loading && <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>}
             </button>
           </form>
+
+          {/* Try Demo */}
+          {onTryDemo && (
+            <button
+              onClick={onTryDemo}
+              className="w-full border border-outline-variant/30 text-on-surface-variant font-headline font-bold uppercase tracking-widest py-4 text-xs hover:bg-surface-container transition-colors flex items-center justify-center gap-2"
+              type="button"
+            >
+              <span className="material-symbols-outlined text-base">play_arrow</span>
+              Try Demo — No API Keys Required
+            </button>
+          )}
 
           {/* Metadata/Status Footnote */}
           <div className="pt-8 border-t border-outline-variant/10 text-center flex flex-col gap-2">

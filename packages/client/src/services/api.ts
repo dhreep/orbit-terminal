@@ -3,7 +3,22 @@
  * Single Responsibility: HTTP transport only.
  */
 
-import type { ApiResponse } from '@orbit/shared';
+import type {
+  ApiResponse,
+  WatchlistItem,
+  PriceAlert,
+  AlertCondition,
+  NewsArticle,
+  Holding,
+  Transaction,
+  EarningsEvent,
+  TradeJournalEntry,
+  CryptoQuote,
+  ForexRate,
+  InsiderTransaction,
+  EconomicEvent,
+  SentimentData,
+} from '@orbit/shared';
 
 const BASE_URL = '/api';
 
@@ -105,5 +120,89 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(data),
       }),
+  },
+
+  // ─── Watchlist ──────────────────────────────────────────
+  watchlist: {
+    getAll: () => request<WatchlistItem[]>('/watchlist'),
+    add: (ticker: string) => request('/watchlist', { method: 'POST', body: JSON.stringify({ ticker }) }),
+    remove: (ticker: string) => request(`/watchlist/${ticker}`, { method: 'DELETE' }),
+    reorder: (tickers: string[]) => request('/watchlist/reorder', { method: 'PUT', body: JSON.stringify({ tickers }) }),
+  },
+
+  // ─── Alerts ─────────────────────────────────────────────
+  alerts: {
+    getAll: () => request<PriceAlert[]>('/alerts'),
+    create: (ticker: string, targetPrice: number, condition: AlertCondition) =>
+      request('/alerts', { method: 'POST', body: JSON.stringify({ ticker, targetPrice, condition }) }),
+    remove: (id: number) => request(`/alerts/${id}`, { method: 'DELETE' }),
+  },
+
+  // ─── News ───────────────────────────────────────────────
+  news: {
+    getByTicker: (ticker: string) => request<NewsArticle[]>(`/news/${ticker}`),
+  },
+
+  // ─── Portfolio ──────────────────────────────────────────
+  portfolio: {
+    getHoldings: () => request<Holding[]>('/portfolio/holdings'),
+    addHolding: (ticker: string, shares: number, avgCost: number) =>
+      request('/portfolio/holdings', { method: 'POST', body: JSON.stringify({ ticker, shares, avgCost }) }),
+    removeHolding: (ticker: string) => request(`/portfolio/holdings/${ticker}`, { method: 'DELETE' }),
+    getTransactions: () => request<Transaction[]>('/portfolio/transactions'),
+    addTransaction: (t: Omit<Transaction, 'id'>) =>
+      request('/portfolio/transactions', { method: 'POST', body: JSON.stringify(t) }),
+    removeTransaction: (id: number) => request(`/portfolio/transactions/${id}`, { method: 'DELETE' }),
+  },
+
+  // ─── Earnings ───────────────────────────────────────────
+  earnings: {
+    upcoming: () => request<EarningsEvent[]>('/earnings'),
+    byTicker: (ticker: string) => request<EarningsEvent[]>(`/earnings/${ticker}`),
+  },
+
+  // ─── Journal ────────────────────────────────────────────
+  journal: {
+    getAll: () => request<TradeJournalEntry[]>('/journal'),
+    create: (entry: { ticker: string; entryPrice: number; entryDate: string; shares: number; thesis: string }) =>
+      request('/journal', { method: 'POST', body: JSON.stringify(entry) }),
+    close: (id: number, data: { exitPrice: number; exitDate: string; outcome: string }) =>
+      request(`/journal/${id}/close`, { method: 'PUT', body: JSON.stringify(data) }),
+    remove: (id: number) => request(`/journal/${id}`, { method: 'DELETE' }),
+  },
+
+  // ─── Crypto ─────────────────────────────────────────────
+  crypto: {
+    top: (limit = 50) => request<CryptoQuote[]>(`/crypto/top?limit=${limit}`),
+    getAll: () => request<CryptoQuote[]>('/crypto/top'),
+    getChart: (id: string, days: number) =>
+      request<Array<{ time: string; price: number }>>(`/crypto/${id}/chart?days=${days}`),
+  },
+
+  // ─── Forex ──────────────────────────────────────────────
+  forex: {
+    rates: (base = 'USD') => request<ForexRate[]>(`/forex/rates?base=${base}`),
+    getLatest: (base: string) => request<ForexRate[]>(`/forex/rates?base=${base}`),
+    getHistory: (base: string, quote: string, days: number) =>
+      request<ForexRate[]>(`/forex/history?base=${base}&quote=${quote}&days=${days}`),
+  },
+
+  // ─── Insider Trading ────────────────────────────────────
+  insider: {
+    byTicker: (ticker: string) => request<InsiderTransaction[]>(`/insider/${ticker}`),
+    getByTicker: (ticker: string) => request<InsiderTransaction[]>(`/insider/${ticker}`),
+  },
+
+  // ─── Economic Calendar ──────────────────────────────────
+  economic: {
+    events: () => request<EconomicEvent[]>('/economic/events'),
+    getAll: () => request<EconomicEvent[]>('/economic/events'),
+  },
+
+  // ─── Sentiment ──────────────────────────────────────────
+  sentiment: {
+    trending: () => request<SentimentData[]>('/sentiment/trending'),
+    getAll: () => request<SentimentData[]>('/sentiment/trending'),
+    getByTicker: (ticker: string) => request<SentimentData>(`/sentiment/${ticker}`),
   },
 };
