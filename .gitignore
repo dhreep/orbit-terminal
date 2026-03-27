@@ -39,6 +39,18 @@ coverage/
 Thumbs.db
 .DS_Store
 
+# SQLite WAL/SHM files
+*.db-shm
+
+# mise
+.mise.toml.local
+
+# Vite
+*.local
+
+# shadcn
+# components.json is intentionally tracked
+
 # Temporary/Misc
 tmp/
 temp/

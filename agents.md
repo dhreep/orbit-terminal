@@ -90,9 +90,39 @@ Everything below happened in a single continuous session.
 - Dark/light theme toggle
 
 ### Design System Overhaul
-- Integrated shadcn/ui across all components
+- Integrated shadcn/ui across all components (17 primitives)
 - Unified dark terminal aesthetic
 - Consistent spacing, typography, and color tokens
+
+### Iterative Bug-Fixing Phase
+
+After the initial build, the user tested the running application in real time and reported issues. All of the following were diagnosed and fixed in the same continuous session, with the user providing immediate feedback after each fix:
+
+**Data provider fixes:**
+- Fixed Yahoo Finance crumb authentication for fundamentals (crumb/cookie flow wasn't working)
+- Fixed crypto explorer crash (wrong CoinGecko API path)
+- Fixed forex (Frankfurter URL `.dev` → `.app`)
+- Fixed sentiment and economic API path mismatches on the server
+
+**Chart & rendering fixes:**
+- Fixed duplicate timestamp crash in candlestick charts
+- Fixed grid layouts (resizable 2×2 dividers, spotlight sizing)
+- Fixed markdown formatting (Tailwind base layer reset was overriding prose styles)
+
+**UX fixes & additions:**
+- Fixed theme toggle (light/dark class management on `<html>`)
+- Fixed international stock support (ticker symbol length limit was too short for suffixed symbols like `RELIANCE.NS`)
+- Added drag-and-drop reordering for watchlist items
+- Added drag-and-drop slot rearrangement in the workspace grid
+- Added ticker autocomplete across all input fields (watchlist, alerts, portfolio, journal, screener, correlation)
+- Added demo mode with server-side data seeding (portfolio, trades, alerts, watchlist, notes)
+- Added bookmark button in slots to quickly add ticker to watchlist
+- Added clear all button for watchlist
+- Added search bar callout in nav for ⌘K
+- Added keyboard shortcuts dialog accessible via command palette
+- Added markdown help link in trade thesis editor
+
+This phase involved multiple rounds of user-directed refinements — a tight feedback loop where the user would test, report, and the agent would fix, often within minutes per cycle.
 
 ---
 
