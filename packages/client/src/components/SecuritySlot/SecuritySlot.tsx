@@ -81,7 +81,7 @@ export function SecuritySlot({ slot, onTickerChange, onTickerClear, onChartModeT
       <header className="h-8 flex items-center justify-between px-2 bg-secondary border-b border-border relative z-20">
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-bold text-primary tracking-tighter font-mono">SLOT_{String(slot.id + 1).padStart(2, '0')}</span>
-          <TickerSearch currentTicker={slot.ticker} onSelect={onTickerChange} />
+          <TickerSearch currentTicker={slot.ticker} onSelect={onTickerChange} onClear={onTickerClear} />
           <span className="text-[10px] font-mono text-orbit-info truncate max-w-[180px] hidden sm:inline" title={displayName}>
             {displayName}
           </span>

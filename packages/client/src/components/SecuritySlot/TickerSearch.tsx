@@ -4,6 +4,7 @@ import { api } from '../../services/api';
 interface TickerSearchProps {
   currentTicker: string | null;
   onSelect: (ticker: string) => void;
+  onClear?: () => void;
 }
 
 interface SearchResult {
@@ -12,7 +13,7 @@ interface SearchResult {
   exchange: string;
 }
 
-export function TickerSearch({ currentTicker, onSelect }: TickerSearchProps) {
+export function TickerSearch({ currentTicker, onSelect, onClear }: TickerSearchProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -72,6 +73,11 @@ export function TickerSearch({ currentTicker, onSelect }: TickerSearchProps) {
 
   const handleChange = (value: string) => {
     setQuery(value);
+    if (value === '' && currentTicker) {
+      onClear?.();
+      setIsOpen(false);
+      return;
+    }
     setIsOpen(true);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (retryRef.current) clearTimeout(retryRef.current);
