@@ -5,6 +5,9 @@ import { PriceChart } from './PriceChart';
 import { RatioSidebar } from './RatioSidebar';
 import { TradeThesis } from './TradeThesis';
 import { TickerSearch } from './TickerSearch';
+import { IndicatorOverlay } from './IndicatorOverlay';
+import { IndicatorSelector } from './IndicatorSelector';
+import { NewsFeed } from './NewsFeed';
 import type { SlotState, ChartMode } from '@orbit/shared';
 
 interface SecuritySlotProps {
@@ -16,9 +19,13 @@ interface SecuritySlotProps {
 }
 
 type TimeRange = '1W' | '1M' | '3M' | '6M' | '1Y' | '5Y';
+type SlotTab = 'chart' | 'news';
 
 export function SecuritySlot({ slot, onTickerChange, onTickerClear, onChartModeToggle, isSpotlight }: SecuritySlotProps) {
   const [timeRange, setTimeRange] = useState<TimeRange>('3M');
+  const [indicators, setIndicators] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<SlotTab>('chart');
+  const [showIndicatorSelector, setShowIndicatorSelector] = useState(false);
 
   const { data: candles, isLoading: candlesLoading, error: candlesError } = useQuery({
     queryKey: ['candles', slot.ticker, timeRange],
@@ -76,6 +83,29 @@ export function SecuritySlot({ slot, onTickerChange, onTickerClear, onChartModeT
           </span>
         </div>
         <div className="flex items-center gap-1">
+          {/* Tab toggle */}
+          <div className="flex items-center border border-surface-variant/15 mr-1">
+            <button
+              onClick={() => setActiveTab('chart')}
+              className={`px-1.5 py-0.5 text-[9px] font-mono font-bold tracking-wider transition-all ${activeTab === 'chart' ? 'bg-primary-container/20 text-primary' : 'text-on-surface-variant hover:bg-surface-container'}`}
+            >
+              CHART
+            </button>
+            <button
+              onClick={() => setActiveTab('news')}
+              className={`px-1.5 py-0.5 text-[9px] font-mono font-bold tracking-wider transition-all ${activeTab === 'news' ? 'bg-primary-container/20 text-primary' : 'text-on-surface-variant hover:bg-surface-container'}`}
+            >
+              NEWS
+            </button>
+          </div>
+          {/* Indicator toggle */}
+          <button
+            onClick={() => setShowIndicatorSelector(!showIndicatorSelector)}
+            className={`p-0.5 transition-colors ${showIndicatorSelector ? 'text-primary' : 'text-on-surface-variant hover:text-primary'}`}
+            title="Technical Indicators"
+          >
+            <span className="material-symbols-outlined !text-sm">analytics</span>
+          </button>
           {/* Time range selector */}
           <div className="flex items-center border border-surface-variant/15 mr-1">
             {TIME_RANGES.map((range) => (
@@ -102,37 +132,56 @@ export function SecuritySlot({ slot, onTickerChange, onTickerClear, onChartModeT
         </div>
       </header>
 
+      {/* Indicator Selector */}
+      {showIndicatorSelector && (
+        <div className="px-2 py-1 bg-surface border-b border-surface-variant/15 overflow-x-auto">
+          <IndicatorSelector selected={indicators} onChange={setIndicators} />
+        </div>
+      )}
+
       <div className="flex flex-grow overflow-hidden">
-        {/* Chart area */}
-        <div className="flex-1 bg-surface-container-lowest relative flex items-end overflow-hidden">
-          {candlesLoading ? (
-            <div className="w-full h-full flex flex-col justify-center items-center">
-              <div className="skeleton w-24 h-4 mx-auto mb-2" />
-              <div className="skeleton w-16 h-3 mx-auto" />
-            </div>
-          ) : candles && candles.length > 0 ? (
-            <PriceChart
-              data={candles}
-              mode={slot.chartMode}
-              onToggleMode={onChartModeToggle}
-              ticker={slot.ticker}
-            />
-          ) : candlesError ? (
-            <div className="w-full h-full flex flex-col justify-center items-center gap-2">
-              <span className="material-symbols-outlined text-primary animate-pulse !text-2xl">sync</span>
-              <p className="text-[11px] font-mono tracking-widest text-on-surface-variant uppercase">
-                {(candlesError as Error).message?.includes('429') || (candlesError as Error).message?.includes('rate')
-                  ? 'Rate limited — retrying...'
-                  : 'Loading chart data...'}
-              </p>
-              <p className="text-[9px] font-mono text-on-surface-variant/50">Free tier: 5 calls/min</p>
-            </div>
+        {/* Chart / News area */}
+        <div className="flex-1 bg-surface-container-lowest relative flex flex-col overflow-hidden">
+          {activeTab === 'news' ? (
+            <NewsFeed ticker={slot.ticker} />
           ) : (
-            <div className="w-full h-full flex justify-center items-center">
-              <p className="text-[11px] font-mono tracking-widest text-on-surface-variant">
-                No chart data available
-              </p>
-            </div>
+            <>
+              <div className="flex-1 relative flex items-end overflow-hidden">
+                {candlesLoading ? (
+                  <div className="w-full h-full flex flex-col justify-center items-center">
+                    <div className="skeleton w-24 h-4 mx-auto mb-2" />
+                    <div className="skeleton w-16 h-3 mx-auto" />
+                  </div>
+                ) : candles && candles.length > 0 ? (
+                  <PriceChart
+                    data={candles}
+                    mode={slot.chartMode}
+                    onToggleMode={onChartModeToggle}
+                    ticker={slot.ticker}
+                  />
+                ) : candlesError ? (
+                  <div className="w-full h-full flex flex-col justify-center items-center gap-2">
+                    <span className="material-symbols-outlined text-primary animate-pulse !text-2xl">sync</span>
+                    <p className="text-[11px] font-mono tracking-widest text-on-surface-variant uppercase">
+                      {(candlesError as Error).message?.includes('429') || (candlesError as Error).message?.includes('rate')
+                        ? 'Rate limited — retrying...'
+                        : 'Loading chart data...'}
+                    </p>
+                    <p className="text-[9px] font-mono text-on-surface-variant/50">Free tier: 5 calls/min</p>
+                  </div>
+                ) : (
+                  <div className="w-full h-full flex justify-center items-center">
+                    <p className="text-[11px] font-mono tracking-widest text-on-surface-variant">
+                      No chart data available
+                    </p>
+                  </div>
+                )}
+              </div>
+              {/* Indicator Overlay */}
+              {candles && candles.length > 0 && indicators.length > 0 && (
+                <IndicatorOverlay data={candles} indicators={indicators} />
+              )}
+            </>
           )}
         </div>
 
