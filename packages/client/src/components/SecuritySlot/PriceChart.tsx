@@ -13,17 +13,11 @@ export function PriceChart({ data, mode, onToggleMode, ticker }: PriceChartProps
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<'Candlestick'> | ISeriesApi<'Line'> | null>(null);
+  const modeRef = useRef<ChartMode>(mode);
 
+  // Create chart ONCE on mount, clean up on unmount
   useEffect(() => {
     if (!containerRef.current) return;
-
-    // Clean up previous chart safely
-    if (chartRef.current) {
-      try { chartRef.current.remove(); } catch (_) { /* already disposed */ }
-      chartRef.current = null;
-      seriesRef.current = null;
-    }
-
     const container = containerRef.current;
 
     const chart = createChart(container, {
@@ -54,6 +48,33 @@ export function PriceChart({ data, mode, onToggleMode, ticker }: PriceChartProps
     });
 
     chartRef.current = chart;
+
+    const observer = new ResizeObserver(() => {
+      chart.applyOptions({
+        width: container.clientWidth,
+        height: container.clientHeight,
+      });
+    });
+    observer.observe(container);
+
+    return () => {
+      observer.disconnect();
+      try { chart.remove(); } catch (_) { /* already disposed */ }
+      chartRef.current = null;
+      seriesRef.current = null;
+    };
+  }, []);
+
+  // Handle mode changes: remove old series, create new one, set data
+  useEffect(() => {
+    const chart = chartRef.current;
+    if (!chart) return;
+
+    // Remove old series if mode changed or first render
+    if (seriesRef.current) {
+      try { chart.removeSeries(seriesRef.current); } catch (_) { /* safe */ }
+      seriesRef.current = null;
+    }
 
     if (mode === 'candle') {
       const series = chart.addCandlestickSeries({
@@ -89,24 +110,8 @@ export function PriceChart({ data, mode, onToggleMode, ticker }: PriceChartProps
     }
 
     chart.timeScale().fitContent();
-
-    const observer = new ResizeObserver(() => {
-      if (container) {
-        chart.applyOptions({
-          width: container.clientWidth,
-          height: container.clientHeight,
-        });
-      }
-    });
-    observer.observe(container);
-
-    return () => {
-      observer.disconnect();
-      chartRef.current = null;
-      seriesRef.current = null;
-      try { chart.remove(); } catch (_) { /* already disposed, safe to ignore */ }
-    };
-  }, [data, mode]);
+    modeRef.current = mode;
+  }, [mode, data]);
 
   // Determine the latest close price and daily change for the overlay string
   const latestPrice = data.length > 0 ? data[data.length - 1].close : 0;
@@ -136,6 +141,7 @@ export function PriceChart({ data, mode, onToggleMode, ticker }: PriceChartProps
         </span>
         <button
           onClick={onToggleMode}
+          aria-label={mode === 'candle' ? 'Switch to line chart' : 'Switch to candlestick chart'}
           className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 transition-all hover:opacity-80 border border-surface-variant/15 bg-surface-dim text-on-surface-variant cursor-pointer z-30"
         >
           {mode === 'candle' ? '📊 Candle' : '📈 Line'}

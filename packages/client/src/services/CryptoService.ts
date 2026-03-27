@@ -88,24 +88,28 @@ export async function decrypt(blob: EncryptedBlob, password: string): Promise<st
  */
 export async function hashPassword(password: string, salt?: string): Promise<{ hash: string; salt: string }> {
   const saltBuffer = salt ? base64ToBuffer(salt) : crypto.getRandomValues(new Uint8Array(SALT_BYTES));
-  const key = await deriveKey(password, saltBuffer instanceof Uint8Array ? saltBuffer.buffer : saltBuffer);
+  const saltAB = saltBuffer instanceof Uint8Array ? saltBuffer.buffer : saltBuffer;
 
-  // Export key to get a comparable hash
-  const exported = await crypto.subtle.exportKey('raw', await crypto.subtle.deriveKey(
-    {
-      name: 'PBKDF2',
-      salt: saltBuffer instanceof Uint8Array ? saltBuffer.buffer : saltBuffer,
-      iterations: PBKDF2_ITERATIONS,
-      hash: 'SHA-256',
-    },
-    await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']),
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(password),
+    'PBKDF2',
+    false,
+    ['deriveKey']
+  );
+
+  const derived = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: saltAB, iterations: PBKDF2_ITERATIONS, hash: 'SHA-256' },
+    keyMaterial,
     { name: 'AES-GCM', length: KEY_LENGTH },
     true,
     ['encrypt']
-  ));
+  );
+
+  const exported = await crypto.subtle.exportKey('raw', derived);
 
   return {
     hash: bufferToBase64(exported),
-    salt: bufferToBase64(saltBuffer instanceof Uint8Array ? saltBuffer.buffer : saltBuffer),
+    salt: bufferToBase64(saltAB),
   };
 }

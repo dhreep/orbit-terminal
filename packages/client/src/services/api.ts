@@ -7,6 +7,12 @@ import type { ApiResponse } from '@orbit/shared';
 
 const BASE_URL = '/api';
 
+let authToken: string | null = null;
+
+export function setAuthToken(token: string | null) {
+  authToken = token;
+}
+
 async function request<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -15,6 +21,7 @@ async function request<T>(
   const response = await fetch(url, {
     headers: {
       'Content-Type': 'application/json',
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       ...options.headers,
     },
     ...options,
@@ -39,7 +46,7 @@ export const api = {
         body: JSON.stringify({ passwordHash, salt }),
       }),
     verify: (passwordHash: string) =>
-      request('/vault/verify', {
+      request<{ token: string }>('/vault/verify', {
         method: 'POST',
         body: JSON.stringify({ passwordHash }),
       }),

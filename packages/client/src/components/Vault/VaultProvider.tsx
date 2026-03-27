@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { api } from '../../services/api';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import { api, setAuthToken } from '../../services/api';
 import { encrypt, decrypt, hashPassword } from '../../services/CryptoService';
 import type { EncryptedKeyRecord, ApiProvider } from '@orbit/shared';
 
@@ -44,27 +44,39 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  // Auto-sync session keys if server restarted (volatile memory loss)
+  const bootIdRef = useRef<string | null>(null);
+
+  // Boot ID–based sync: poll /api/health every 30s, re-sync only if server restarted
   useEffect(() => {
     if (state.status !== 'unlocked') return;
 
-    const sync = async () => {
+    const checkAndSync = async () => {
       try {
-        const check = await api.market.getSessionCheck();
-        const providers: ApiProvider[] = ['alpha_vantage', 'fmp'];
-        for (const p of providers) {
-          if (!check[p] && state.keys.has(p)) {
-            console.warn(`🔄 [Vault] Re-syncing ${p} key to server session...`);
-            await api.market.setSessionKey(p, state.keys.get(p)!);
+        const health = await fetch('/api/health').then(r => r.json());
+        const newBootId = health.bootId as string;
+
+        if (!bootIdRef.current) {
+          bootIdRef.current = newBootId;
+          return;
+        }
+
+        if (newBootId !== bootIdRef.current) {
+          console.warn('🔄 [Vault] Server restarted (bootId changed), re-syncing keys...');
+          bootIdRef.current = newBootId;
+          const providers: ApiProvider[] = ['alpha_vantage', 'fmp'];
+          for (const p of providers) {
+            if (state.keys.has(p)) {
+              await api.market.setSessionKey(p, state.keys.get(p)!);
+            }
           }
         }
       } catch (e) {
-        console.error('[Vault] Session sync failed:', e);
+        console.error('[Vault] Health check failed:', e);
       }
     };
 
-    const timer = setInterval(sync, 5000);
-    sync();
+    checkAndSync();
+    const timer = setInterval(checkAndSync, 30000);
     return () => clearInterval(timer);
   }, [state.status, state.keys]);
 
@@ -81,7 +93,8 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
     if (!vaultStatus.salt) throw new Error('Vault not initialized');
 
     const { hash } = await hashPassword(pwd, vaultStatus.salt);
-    await api.vault.verify(hash);
+    const result = await api.vault.verify(hash);
+    setAuthToken(result.token);
 
     // Decrypt all stored keys
     const encryptedKeys = await api.vault.getKeys();
@@ -104,6 +117,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
 
   const lockVault = useCallback(async () => {
     await api.market.lockSession();
+    setAuthToken(null);
     setPassword(null);
     setState({ status: 'locked', keys: new Map() });
   }, []);

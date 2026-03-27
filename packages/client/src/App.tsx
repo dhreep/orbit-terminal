@@ -5,6 +5,7 @@ import { VaultUnlock } from './components/Vault/VaultUnlock';
 import { ApiKeyManager } from './components/Vault/ApiKeyManager';
 import { SecuritySlot } from './components/SecuritySlot/SecuritySlot';
 import { api } from './services/api';
+import { getNYSEStatus } from './utils/market';
 import type { Workspace, LayoutMode, SlotState } from '@orbit/shared';
 
 const DEFAULT_WORKSPACE: Workspace = {
@@ -58,6 +59,7 @@ function Terminal() {
   const [showKeyManager, setShowKeyManager] = useState(false);
   const [workspaceLoaded, setWorkspaceLoaded] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const nyseStatus = getNYSEStatus();
 
   // Real-time UTC clock
   useEffect(() => {
@@ -167,20 +169,20 @@ function Terminal() {
         </div>
         <div className="flex items-center gap-1 h-full">
           <div className="flex border-r border-surface-variant/30 pr-2 mr-2 gap-1">
-            <button onClick={toggleLayout} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="Toggle Layout">
+            <button onClick={toggleLayout} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="Toggle Layout" aria-label="Toggle layout">
               <span className="material-symbols-outlined">{workspace.layout === 'grid' ? 'grid_view' : 'splitscreen'}</span>
             </button>
-            <button onClick={() => setShowKeyManager(true)} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="Keys">
+            <button onClick={() => setShowKeyManager(true)} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="Keys" aria-label="Manage API keys">
               <span className="material-symbols-outlined">api</span>
             </button>
-            <button onClick={handleExport} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="Export Workspace">
+            <button onClick={handleExport} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="Export Workspace" aria-label="Export workspace">
               <span className="material-symbols-outlined">file_download</span>
             </button>
-            <button onClick={handleImport} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="Import Workspace">
+            <button onClick={handleImport} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="Import Workspace" aria-label="Import workspace">
               <span className="material-symbols-outlined">file_upload</span>
             </button>
           </div>
-          <button onClick={vault.lockVault} className="flex items-center gap-2 px-3 py-1 bg-primary-container text-on-primary font-bold text-[10px] tracking-widest uppercase hover:brightness-110 transition-all">
+          <button onClick={vault.lockVault} className="flex items-center gap-2 px-3 py-1 bg-primary-container text-on-primary font-bold text-[10px] tracking-widest uppercase hover:brightness-110 transition-all" aria-label="Lock vault">
             <span className="material-symbols-outlined !text-sm">lock</span>
             SECURE VAULT
           </button>
@@ -211,7 +213,7 @@ function Terminal() {
           <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 bg-tertiary"></div> CONNECTED</span>
         </div>
         <div className="flex gap-4">
-          <span>NYSE: OPEN</span>
+          <span className={nyseStatus.isOpen ? 'text-green-400' : 'text-red-400'}>NYSE: {nyseStatus.label}</span>
           <span className="text-primary font-bold">UTC: {currentTime.toISOString().substring(11, 19)}</span>
         </div>
       </footer>
