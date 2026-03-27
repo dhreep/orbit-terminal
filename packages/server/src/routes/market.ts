@@ -413,7 +413,8 @@ router.get('/rate-status', (_req: Request, res: Response) => {
 router.get('/session/check', (_req: Request, res: Response) => {
   const hasAV = apiKeys.has('alpha_vantage');
   const hasFMP = apiKeys.has('fmp');
-  res.json({ success: true, data: { alpha_vantage: hasAV, fmp: hasFMP } } satisfies ApiResponse<any>);
+  const hasFH = apiKeys.has('finnhub');
+  res.json({ success: true, data: { alpha_vantage: hasAV, fmp: hasFMP, finnhub: hasFH } } satisfies ApiResponse<any>);
 });
 
 export default router;

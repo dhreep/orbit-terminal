@@ -15,7 +15,8 @@ router.get('/', async (_req: Request, res: Response) => {
     const to = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
     const response = await fetch(`https://finnhub.io/api/v1/calendar/economic?from=${from}&to=${to}&token=${key}`);
     const data = await response.json();
-    const events: EconomicEvent[] = (data?.economicCalendar ?? []).map((e: any) => ({
+    const calendar = data?.economicCalendar || data?.result || data || [];
+    const events: EconomicEvent[] = (Array.isArray(calendar) ? calendar : []).map((e: any) => ({
       date: e.time ?? '',
       event: e.event ?? '',
       country: e.country ?? '',

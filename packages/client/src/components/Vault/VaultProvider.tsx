@@ -63,7 +63,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
         if (newBootId !== bootIdRef.current) {
           console.warn('🔄 [Vault] Server restarted (bootId changed), re-syncing keys...');
           bootIdRef.current = newBootId;
-          const providers: ApiProvider[] = ['alpha_vantage', 'fmp'];
+          const providers: ApiProvider[] = ['alpha_vantage', 'fmp', 'finnhub'];
           for (const p of providers) {
             if (state.keys.has(p)) {
               await api.market.setSessionKey(p, state.keys.get(p)!);
