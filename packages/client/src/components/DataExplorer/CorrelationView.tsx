@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { TickerAutocomplete } from '@/components/shared/TickerAutocomplete';
 import { api } from '@/services/api';
 
 function pearsonCorrelation(x: number[], y: number[]): number {
@@ -13,9 +13,7 @@ function pearsonCorrelation(x: number[], y: number[]): number {
   let num = 0, denX = 0, denY = 0;
   for (let i = 0; i < n; i++) {
     const dx = x[i] - meanX, dy = y[i] - meanY;
-    num += dx * dy;
-    denX += dx * dx;
-    denY += dy * dy;
+    num += dx * dy; denX += dx * dx; denY += dy * dy;
   }
   const den = Math.sqrt(denX * denY);
   return den === 0 ? 0 : num / den;
@@ -34,33 +32,37 @@ function corrColor(v: number): string {
 }
 
 export function CorrelationView() {
-  const [input, setInput] = useState('AAPL, MSFT, GOOGL');
   const [tickers, setTickers] = useState<string[]>([]);
   const [matrix, setMatrix] = useState<number[][]>([]);
   const [loading, setLoading] = useState(false);
 
+  const addTicker = useCallback((ticker: string) => {
+    const t = ticker.toUpperCase();
+    if (tickers.length >= 6 || tickers.includes(t)) return;
+    setTickers(prev => [...prev, t]);
+  }, [tickers]);
+
+  const removeTicker = useCallback((ticker: string) => {
+    setTickers(prev => prev.filter(t => t !== ticker));
+    setMatrix([]);
+  }, []);
+
   const compute = useCallback(async () => {
-    const list = input.split(',').map((t) => t.trim().toUpperCase()).filter(Boolean).slice(0, 6);
-    if (list.length < 2) return;
+    if (tickers.length < 2) return;
     setLoading(true);
     try {
-      const candleData = await Promise.all(
-        list.map((t) => api.market.getCandles(t, '3M'))
-      );
-      const returns = candleData.map((candles) => dailyReturns(candles.map((c) => c.close)));
-      const n = list.length;
+      const candleData = await Promise.all(tickers.map(t => api.market.getCandles(t, '3M')));
+      const returns = candleData.map(candles => dailyReturns(candles.map(c => c.close)));
+      const n = tickers.length;
       const corr: number[][] = Array.from({ length: n }, () => Array(n).fill(0));
-      for (let i = 0; i < n; i++) {
-        for (let j = 0; j < n; j++) {
+      for (let i = 0; i < n; i++)
+        for (let j = 0; j < n; j++)
           corr[i][j] = i === j ? 1 : pearsonCorrelation(returns[i], returns[j]);
-        }
-      }
-      setTickers(list);
       setMatrix(corr);
     } finally {
       setLoading(false);
     }
-  }, [input]);
+  }, [tickers]);
 
   return (
     <Card className="h-full border-0 rounded-none bg-background">
@@ -71,17 +73,29 @@ export function CorrelationView() {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        <div className="flex gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="AAPL, MSFT, GOOGL (2-6 tickers)"
-            className="flex-1 h-8 text-xs font-mono uppercase"
-            aria-label="Tickers for correlation"
-          />
-          <Button size="sm" onClick={compute} disabled={loading}>
-            {loading ? 'Computing…' : 'Compute'}
-          </Button>
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap gap-1.5 min-h-[32px] items-center">
+            {tickers.map(t => (
+              <Badge key={t} variant="secondary" className="text-xs font-mono gap-1 pl-2 pr-1 py-0.5 cursor-pointer hover:bg-destructive/20" onClick={() => removeTicker(t)}>
+                {t}
+                <span className="material-symbols-outlined !text-[14px] text-muted-foreground hover:text-destructive">close</span>
+              </Badge>
+            ))}
+            {tickers.length < 6 && (
+              <TickerAutocomplete
+                value=""
+                onChange={addTicker}
+                placeholder={tickers.length === 0 ? 'Search ticker to add…' : 'Add more…'}
+                className="h-7 text-xs w-40"
+              />
+            )}
+          </div>
+          <div className="flex gap-2 items-center">
+            <span className="text-[10px] text-muted-foreground font-mono">{tickers.length}/6 tickers</span>
+            <Button size="sm" onClick={compute} disabled={loading || tickers.length < 2}>
+              {loading ? 'Computing…' : 'Compute'}
+            </Button>
+          </div>
         </div>
 
         {tickers.length > 0 && matrix.length > 0 ? (
@@ -90,9 +104,7 @@ export function CorrelationView() {
               <thead>
                 <tr>
                   <th className="p-2 text-left text-muted-foreground" />
-                  {tickers.map((t) => (
-                    <th key={t} className="p-2 text-center font-bold">{t}</th>
-                  ))}
+                  {tickers.map(t => <th key={t} className="p-2 text-center font-bold">{t}</th>)}
                 </tr>
               </thead>
               <tbody>
@@ -100,9 +112,7 @@ export function CorrelationView() {
                   <tr key={t}>
                     <td className="p-2 font-bold">{t}</td>
                     {matrix[i].map((v, j) => (
-                      <td key={j} className={`p-2 text-center rounded ${corrColor(v)}`}>
-                        {v.toFixed(2)}
-                      </td>
+                      <td key={j} className={`p-2 text-center rounded ${corrColor(v)}`}>{v.toFixed(2)}</td>
                     ))}
                   </tr>
                 ))}
@@ -114,7 +124,7 @@ export function CorrelationView() {
             </div>
           </div>
         ) : (
-          !loading && <p className="text-center text-muted-foreground text-xs py-8">Enter 2-6 tickers to compute correlations</p>
+          !loading && <p className="text-center text-muted-foreground text-xs py-8">Add 2-6 tickers to compute correlations</p>
         )}
       </CardContent>
     </Card>
