@@ -20,6 +20,7 @@ import { PortfolioView } from './components/Portfolio/PortfolioView';
 import { EarningsCalendar } from './components/Earnings/EarningsCalendar';
 import { TradeJournal } from './components/Journal/TradeJournal';
 import { DataExplorer } from './components/DataExplorer/DataExplorer';
+import { ResizableGrid } from './components/ResizableGrid';
 import type { Workspace, LayoutMode, SlotState } from '@orbit/shared';
 
 type AppView = 'terminal' | 'portfolio' | 'journal' | 'explorer' | 'earnings' | 'screener' | 'correlation';
@@ -317,8 +318,37 @@ function Terminal() {
 
       {/* Main Content */}
       <main className="flex-grow overflow-hidden bg-background">
-        {currentView === 'terminal' && (
-          <div className={`h-full p-1 ${workspace.layout === 'grid' ? 'grid-2x2' : 'grid-spotlight'}`}>
+        {currentView === 'terminal' && workspace.layout === 'grid' && (
+          <ResizableGrid
+            slots={workspace.slots}
+            renderSlot={(slot, i) => (
+              <div
+                key={slot.id}
+                className={cn(
+                  'group relative h-full min-h-0',
+                  overSlot === i && dragSlot !== null && dragSlot !== i && 'ring-2 ring-primary',
+                )}
+                onDragOver={(e) => { e.preventDefault(); setOverSlot(i); }}
+                onDragLeave={() => setOverSlot(null)}
+                onDrop={() => handleSlotDrop(i)}
+              >
+                <SecuritySlot
+                  slot={slot}
+                  onTickerChange={(ticker) => updateSlot(slot.id, { ticker })}
+                  onTickerClear={() => updateSlot(slot.id, { ticker: null })}
+                  onChartModeToggle={() => updateSlot(slot.id, { chartMode: slot.chartMode === 'candle' ? 'line' : 'candle' })}
+                  dragHandle={
+                    <div draggable onDragStart={() => setDragSlot(i)} onDragEnd={() => { setDragSlot(null); setOverSlot(null); }} className="inline-flex cursor-grab active:cursor-grabbing text-muted-foreground/30 hover:text-muted-foreground/60" title="Drag to rearrange">
+                      <span className="material-symbols-outlined !text-xs">drag_indicator</span>
+                    </div>
+                  }
+                />
+              </div>
+            )}
+          />
+        )}
+        {currentView === 'terminal' && workspace.layout === 'spotlight' && (
+          <div className="h-full p-1 grid-spotlight">
             {workspace.slots.map((slot, i) => (
               <div
                 key={slot.id}
@@ -334,20 +364,10 @@ function Terminal() {
                   slot={slot}
                   onTickerChange={(ticker) => updateSlot(slot.id, { ticker })}
                   onTickerClear={() => updateSlot(slot.id, { ticker: null })}
-                  onChartModeToggle={() =>
-                    updateSlot(slot.id, {
-                      chartMode: slot.chartMode === 'candle' ? 'line' : 'candle',
-                    })
-                  }
-                  isSpotlight={workspace.layout === 'spotlight' && slot.id === 0}
+                  onChartModeToggle={() => updateSlot(slot.id, { chartMode: slot.chartMode === 'candle' ? 'line' : 'candle' })}
+                  isSpotlight={i === 0}
                   dragHandle={
-                    <div
-                      draggable
-                      onDragStart={() => setDragSlot(i)}
-                      onDragEnd={() => { setDragSlot(null); setOverSlot(null); }}
-                      className="inline-flex cursor-grab active:cursor-grabbing text-muted-foreground/30 hover:text-muted-foreground/60"
-                      title="Drag to rearrange"
-                    >
+                    <div draggable onDragStart={() => setDragSlot(i)} onDragEnd={() => { setDragSlot(null); setOverSlot(null); }} className="inline-flex cursor-grab active:cursor-grabbing text-muted-foreground/30 hover:text-muted-foreground/60" title="Drag to rearrange">
                       <span className="material-symbols-outlined !text-xs">drag_indicator</span>
                     </div>
                   }
