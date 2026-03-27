@@ -63,7 +63,7 @@ export function CorrelationView() {
   }, [input]);
 
   return (
-    <Card className="h-full border-0 rounded-none bg-surface-container-lowest">
+    <Card className="h-full border-0 rounded-none bg-background">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
           <span className="material-symbols-outlined !text-base">grid_on</span>

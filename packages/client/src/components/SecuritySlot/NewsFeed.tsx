@@ -27,7 +27,7 @@ export function NewsFeed({ ticker }: NewsFeedProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-6">
-        <span className="text-[10px] font-mono text-on-surface-variant animate-pulse">Loading news…</span>
+        <span className="text-[10px] font-mono text-muted-foreground animate-pulse">Loading news…</span>
       </div>
     );
   }
@@ -35,26 +35,26 @@ export function NewsFeed({ ticker }: NewsFeedProps) {
   if (articles.length === 0) {
     return (
       <div className="flex items-center justify-center py-6">
-        <span className="text-[10px] font-mono text-on-surface-variant">No news available</span>
+        <span className="text-[10px] font-mono text-muted-foreground">No news available</span>
       </div>
     );
   }
 
   return (
     <ScrollArea className="h-full max-h-[300px]">
-      <div className="flex flex-col divide-y divide-surface-variant/15">
+      <div className="flex flex-col divide-y divide-border">
         {articles.slice(0, 10).map((article) => (
           <a
             key={article.id}
             href={article.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="block px-3 py-2 hover:bg-surface-container/50 transition-colors"
+            className="block px-3 py-2 hover:bg-muted/50 transition-colors"
           >
-            <p className="text-[11px] font-medium text-on-surface leading-tight line-clamp-2">{article.headline}</p>
+            <p className="text-[11px] font-medium text-foreground leading-tight line-clamp-2">{article.headline}</p>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-[9px] font-mono text-primary">{article.source}</span>
-              <span className="text-[9px] font-mono text-on-surface-variant">{timeAgo(article.datetime)}</span>
+              <span className="text-[9px] font-mono text-muted-foreground">{timeAgo(article.datetime)}</span>
             </div>
           </a>
         ))}

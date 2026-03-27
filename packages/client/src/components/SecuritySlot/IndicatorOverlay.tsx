@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { SMA, EMA, RSI, MACD, BollingerBands } from 'trading-signals';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import type { CandleData } from '@orbit/shared';
 
 interface IndicatorOverlayProps {
@@ -91,9 +92,9 @@ export function IndicatorOverlay({ data, indicators }: IndicatorOverlayProps) {
   if (indicators.length === 0 || values.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap gap-1 px-2 py-1 bg-surface border-t border-surface-variant/15">
+    <div className="flex flex-wrap gap-1 px-2 py-1 bg-card border-t border-border">
       {values.map((v) => (
-        <Badge key={v.label} variant="outline" className={`text-[9px] font-mono px-1.5 py-0 h-4 ${v.color ?? 'text-on-surface-variant'}`}>
+        <Badge key={v.label} variant="outline" className={cn('text-[9px] font-mono px-1.5 py-0 h-4', v.color ?? 'text-muted-foreground')}>
           {v.label}: {v.value}
         </Badge>
       ))}

@@ -50,15 +50,15 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center h-screen bg-surface p-10 font-mono text-error">
+        <div className="flex items-center justify-center h-screen bg-background p-10 font-mono text-destructive">
           <div className="max-w-2xl">
             <h1 className="text-2xl font-bold mb-4">TERMINAL_CRITICAL_FAILURE</h1>
-            <pre className="bg-surface-container p-4 overflow-auto text-xs border border-error/30">
+            <pre className="bg-card p-4 overflow-auto text-xs border border-border">
               {this.state.error?.stack}
             </pre>
-            <button 
+            <button
               onClick={() => window.location.reload()}
-              className="mt-6 px-4 py-2 bg-error text-on-error font-bold uppercase tracking-widest text-xs"
+              className="mt-6 px-4 py-2 bg-destructive text-primary-foreground font-bold uppercase tracking-widest text-xs"
             >
               Restart System
             </button>
@@ -86,7 +86,6 @@ function Terminal() {
   const [currentView, setCurrentView] = useState<AppView>('terminal');
   const nyseStatus = getNYSEStatus();
 
-  // ─── Global Keyboard Shortcuts ──────────────────────────
   useHotkeys('mod+k', (e) => { e.preventDefault(); setCmdPaletteOpen(true); }, { enableOnFormTags: true });
   useHotkeys('mod+w', (e) => { e.preventDefault(); setWatchlistOpen((v) => !v); }, { enableOnFormTags: true });
   useHotkeys('mod+a', (e) => { e.preventDefault(); setAlertsOpen((v) => !v); }, { enableOnFormTags: true });
@@ -94,13 +93,11 @@ function Terminal() {
   useHotkeys('mod+z', (e) => { e.preventDefault(); setZenMode((v) => !v); }, { enableOnFormTags: true });
   useHotkeys('escape', () => { setCmdPaletteOpen(false); setWatchlistOpen(false); setAlertsOpen(false); setShowKeyManager(false); setAiChatOpen(false); if (zenMode) setZenMode(false); });
 
-  // Real-time UTC clock
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Load workspace on unlock
   useEffect(() => {
     if (vault.status === 'unlocked' && !workspaceLoaded) {
       api.workspace.get().then((ws) => {
@@ -110,7 +107,6 @@ function Terminal() {
     }
   }, [vault.status, workspaceLoaded]);
 
-  // Save workspace on changes (debounced)
   useEffect(() => {
     if (!workspaceLoaded) return;
     const timer = setTimeout(() => {
@@ -195,10 +191,10 @@ function Terminal() {
   // ─── Vault gates ────────────────────────────────────────
   if (vault.status === 'loading') {
     return (
-      <div className="flex items-center justify-center h-screen" style={{ background: 'var(--color-orbit-bg)' }}>
+      <div className="flex items-center justify-center h-screen bg-background">
         <div className="text-center animate-fade-in">
           <div className="text-4xl mb-4">🌐</div>
-          <p style={{ color: 'var(--color-orbit-text-muted)' }}>Initializing OrbitTerminal…</p>
+          <p className="text-muted-foreground">Initializing OrbitTerminal…</p>
         </div>
       </div>
     );
@@ -215,7 +211,7 @@ function Terminal() {
   // ─── Zen Mode ────────────────────────────────────────────
   if (zenMode) {
     return (
-      <div className="bg-surface-container-lowest text-on-surface h-screen flex flex-col">
+      <div className="bg-background text-foreground h-screen flex flex-col">
         <main className="flex-grow p-0 overflow-hidden">
           <SecuritySlot
             slot={workspace.slots[0]}
@@ -227,7 +223,7 @@ function Terminal() {
         </main>
         <button
           onClick={() => setZenMode(false)}
-          className="fixed bottom-4 right-4 z-50 px-3 py-1.5 bg-surface-container text-on-surface-variant text-[10px] font-mono uppercase tracking-widest hover:bg-surface-container-high transition-colors border border-surface-variant/30"
+          className="fixed bottom-4 right-4 z-50 px-3 py-1.5 bg-card text-muted-foreground text-[10px] font-mono uppercase tracking-widest hover:bg-accent transition-colors border border-border"
           aria-label="Exit zen mode"
         >
           Exit Zen (⌘Z)
@@ -238,13 +234,13 @@ function Terminal() {
 
   // ─── Main terminal ─────────────────────────────────────
   return (
-    <div className="bg-surface-container-lowest text-on-surface select-none h-screen flex flex-col">
+    <div className="bg-background text-foreground select-none h-screen flex flex-col">
       {/* TopNavBar */}
-      <header className="bg-surface-container-lowest flex justify-between items-center w-full px-4 h-12 flex-shrink-0 border-b border-surface-variant/15">
+      <header className="bg-background flex justify-between items-center w-full px-4 h-12 flex-shrink-0 border-b border-border">
         <div className="flex items-center gap-6 h-full">
           <span className="text-lg font-black tracking-tighter text-primary italic">ORBIT TERMINAL</span>
           {demo.isDemoMode && <Badge variant="outline" className="text-[9px] font-mono tracking-widest border-primary/40 text-primary">DEMO</Badge>}
-          <nav className="flex items-center gap-4 h-full font-headline uppercase tracking-[0.1em] text-[11px] font-bold">
+          <nav className="flex items-center gap-4 h-full font-heading uppercase tracking-[0.1em] text-[11px] font-bold">
             {([
               ['terminal', 'Terminal'],
               ['portfolio', 'Portfolio'],
@@ -257,7 +253,7 @@ function Terminal() {
               <button
                 key={view}
                 onClick={() => setCurrentView(view as AppView)}
-                className={`h-full flex items-center px-2 transition-colors ${currentView === view ? 'text-primary border-b border-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
+                className={`h-full flex items-center px-2 transition-colors ${currentView === view ? 'text-primary border-b border-primary' : 'text-muted-foreground hover:text-foreground'}`}
               >
                 {label}
               </button>
@@ -265,46 +261,46 @@ function Terminal() {
           </nav>
         </div>
         <div className="flex items-center gap-1 h-full">
-          <div className="flex border-r border-surface-variant/30 pr-2 mr-2 gap-1">
-            <button onClick={() => setCmdPaletteOpen(true)} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="Command Palette (⌘K)" aria-label="Open command palette">
+          <div className="flex border-r border-border pr-2 mr-2 gap-1">
+            <button onClick={() => setCmdPaletteOpen(true)} className="p-2 text-muted-foreground hover:bg-accent transition-colors" title="Command Palette (⌘K)" aria-label="Open command palette">
               <span className="material-symbols-outlined">search</span>
             </button>
-            <button onClick={() => setWatchlistOpen(true)} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="Watchlist (⌘W)" aria-label="Toggle watchlist">
+            <button onClick={() => setWatchlistOpen(true)} className="p-2 text-muted-foreground hover:bg-accent transition-colors" title="Watchlist (⌘W)" aria-label="Toggle watchlist">
               <span className="material-symbols-outlined">bookmark</span>
             </button>
-            <button onClick={() => setAlertsOpen(true)} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="Price Alerts (⌘A)" aria-label="Toggle alerts">
+            <button onClick={() => setAlertsOpen(true)} className="p-2 text-muted-foreground hover:bg-accent transition-colors" title="Price Alerts (⌘A)" aria-label="Toggle alerts">
               <span className="material-symbols-outlined">notifications</span>
             </button>
-            <button onClick={() => setAiChatOpen(true)} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="AI Chat (⌘I)" aria-label="Toggle AI chat">
+            <button onClick={() => setAiChatOpen(true)} className="p-2 text-muted-foreground hover:bg-accent transition-colors" title="AI Chat (⌘I)" aria-label="Toggle AI chat">
               <span className="material-symbols-outlined">smart_toy</span>
             </button>
-            <button onClick={toggleLayout} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="Toggle Layout" aria-label="Toggle layout">
+            <button onClick={toggleLayout} className="p-2 text-muted-foreground hover:bg-accent transition-colors" title="Toggle Layout" aria-label="Toggle layout">
               <span className="material-symbols-outlined">{workspace.layout === 'grid' ? 'grid_view' : 'splitscreen'}</span>
             </button>
-            <button onClick={() => setZenMode(true)} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="Zen Mode (⌘Z)" aria-label="Enter zen mode">
+            <button onClick={() => setZenMode(true)} className="p-2 text-muted-foreground hover:bg-accent transition-colors" title="Zen Mode (⌘Z)" aria-label="Enter zen mode">
               <span className="material-symbols-outlined">fullscreen</span>
             </button>
-            <button onClick={toggleTheme} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="Toggle Theme" aria-label="Toggle dark/light theme">
+            <button onClick={toggleTheme} className="p-2 text-muted-foreground hover:bg-accent transition-colors" title="Toggle Theme" aria-label="Toggle dark/light theme">
               <span className="material-symbols-outlined">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
             </button>
-            <button onClick={() => setShowKeyManager(true)} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="Keys" aria-label="Manage API keys">
+            <button onClick={() => setShowKeyManager(true)} className="p-2 text-muted-foreground hover:bg-accent transition-colors" title="Keys" aria-label="Manage API keys">
               <span className="material-symbols-outlined">api</span>
             </button>
             <ExportButton />
-            <button onClick={handleExport} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="Export Workspace JSON" aria-label="Export workspace">
+            <button onClick={handleExport} className="p-2 text-muted-foreground hover:bg-accent transition-colors" title="Export Workspace JSON" aria-label="Export workspace">
               <span className="material-symbols-outlined">file_download</span>
             </button>
-            <button onClick={handleImport} className="p-2 text-on-surface-variant hover:bg-surface-container transition-colors" title="Import Workspace" aria-label="Import workspace">
+            <button onClick={handleImport} className="p-2 text-muted-foreground hover:bg-accent transition-colors" title="Import Workspace" aria-label="Import workspace">
               <span className="material-symbols-outlined">file_upload</span>
             </button>
           </div>
           {demo.isDemoMode ? (
-            <button onClick={demo.exitDemo} className="flex items-center gap-2 px-3 py-1 bg-primary-container text-on-primary font-bold text-[10px] tracking-widest uppercase hover:brightness-110 transition-all" aria-label="Exit demo">
+            <button onClick={demo.exitDemo} className="flex items-center gap-2 px-3 py-1 liquid-gold font-bold text-[10px] tracking-widest uppercase hover:brightness-110 transition-all" aria-label="Exit demo">
               <span className="material-symbols-outlined !text-sm">logout</span>
               EXIT DEMO
             </button>
           ) : (
-            <button onClick={vault.lockVault} className="flex items-center gap-2 px-3 py-1 bg-primary-container text-on-primary font-bold text-[10px] tracking-widest uppercase hover:brightness-110 transition-all" aria-label="Lock vault">
+            <button onClick={vault.lockVault} className="flex items-center gap-2 px-3 py-1 liquid-gold font-bold text-[10px] tracking-widest uppercase hover:brightness-110 transition-all" aria-label="Lock vault">
               <span className="material-symbols-outlined !text-sm">lock</span>
               SECURE VAULT
             </button>
@@ -313,7 +309,7 @@ function Terminal() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow overflow-hidden bg-surface-container-lowest">
+      <main className="flex-grow overflow-hidden bg-background">
         {currentView === 'terminal' && (
           <div className={`h-full p-1 ${workspace.layout === 'grid' ? 'grid-2x2' : 'grid-spotlight'}`}>
             {workspace.slots.map((slot) => (
@@ -341,42 +337,26 @@ function Terminal() {
       </main>
 
       {/* Bottom Status Bar */}
-      <footer className="h-6 flex-shrink-0 bg-surface-container-lowest border-t border-surface-variant/15 flex items-center justify-between px-3 text-[9px] font-mono text-on-surface-variant">
+      <footer className="h-6 flex-shrink-0 bg-background border-t border-border flex items-center justify-between px-3 text-[9px] font-mono text-muted-foreground">
         <div className="flex gap-4">
-          <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 bg-tertiary"></div> CONNECTED</span>
+          <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 bg-orbit-info"></div> CONNECTED</span>
           {demo.isDemoMode && <span className="text-primary font-bold">DEMO MODE</span>}
         </div>
         <div className="flex gap-4">
-          <span className={nyseStatus.isOpen ? 'text-green-400' : 'text-red-400'}>NYSE: {nyseStatus.label}</span>
+          <span className={nyseStatus.isOpen ? 'text-orbit-gain' : 'text-orbit-loss'}>NYSE: {nyseStatus.label}</span>
           <span className="text-primary font-bold">UTC: {currentTime.toISOString().substring(11, 19)}</span>
         </div>
       </footer>
 
-      {/* API Key Manager Modal */}
       {showKeyManager && <ApiKeyManager onClose={() => setShowKeyManager(false)} />}
-
-      {/* Command Palette */}
-      <CommandPalette
-        open={cmdPaletteOpen}
-        onOpenChange={setCmdPaletteOpen}
-        onSelectTicker={handleSelectTicker}
-        onNavigate={handleNavigate}
-        onAction={handleAction}
-      />
-
-      {/* Watchlist Panel */}
+      <CommandPalette open={cmdPaletteOpen} onOpenChange={setCmdPaletteOpen} onSelectTicker={handleSelectTicker} onNavigate={handleNavigate} onAction={handleAction} />
       <WatchlistPanel open={watchlistOpen} onOpenChange={setWatchlistOpen} />
-
-      {/* Alerts Panel */}
       <AlertsPanel open={alertsOpen} onOpenChange={setAlertsOpen} />
-
-      {/* AI Chat Panel */}
       <AIChatPanel open={aiChatOpen} onOpenChange={setAiChatOpen} />
     </div>
   );
 }
 
-// Root app wraps with VaultProvider
 export default function App() {
   return (
     <DemoProvider>

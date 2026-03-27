@@ -27,11 +27,11 @@ export function ApiKeyManager({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(2px)' }} role="dialog" aria-modal="true" aria-label="API Key Manager" onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}>
-      <div className="animate-fade-in w-full max-w-lg ghost-border" style={{ background: 'var(--color-surface-highest)' }}>
-        <div className="flex items-center justify-between p-5 border-b ghost-border" style={{ borderTop: 'none', borderLeft: 'none', borderRight: 'none' }}>
-          <h2 className="font-bold text-lg uppercase tracking-widest" style={{ color: 'var(--color-text-main)' }}>API Key Vault</h2>
-          <button onClick={onClose} className="p-1 hover:opacity-70 transition-opacity" style={{ color: 'var(--color-text-muted)' }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="API Key Manager" onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}>
+      <div className="animate-fade-in w-full max-w-lg bg-accent ghost-border">
+        <div className="flex items-center justify-between p-5 border-b border-border">
+          <h2 className="font-bold text-lg uppercase tracking-widest text-foreground">API Key Vault</h2>
+          <button onClick={onClose} className="p-1 text-muted-foreground hover:opacity-70 transition-opacity">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
           </button>
         </div>
@@ -40,14 +40,14 @@ export function ApiKeyManager({ onClose }: { onClose: () => void }) {
           {PROVIDERS.map((provider) => {
             const hasKey = keys.has(provider.id);
             return (
-              <div key={provider.id} className="p-4 ghost-border" style={{ background: 'var(--color-surface-low)' }}>
+              <div key={provider.id} className="p-4 ghost-border bg-card">
                 <div className="flex items-center justify-between mb-2">
                   <div>
-                    <span className="font-medium text-sm text-uppercase tracking-wider" style={{ color: 'var(--color-text-main)' }}>{provider.label}</span>
-                    <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>{provider.description}</p>
+                    <span className="font-medium text-sm uppercase tracking-wider text-foreground">{provider.label}</span>
+                    <p className="text-xs mt-0.5 text-muted-foreground">{provider.description}</p>
                   </div>
                   {hasKey && (
-                    <span className="text-xs px-2 py-0.5 font-bold uppercase tracking-widest ghost-border" style={{ background: 'rgba(177, 228, 255, 0.1)', color: 'var(--color-success)' }}>
+                    <span className="text-xs px-2 py-0.5 font-bold uppercase tracking-widest ghost-border bg-orbit-info/10 text-orbit-info">
                       Active
                     </span>
                   )}
@@ -55,13 +55,12 @@ export function ApiKeyManager({ onClose }: { onClose: () => void }) {
 
                 {hasKey ? (
                   <div className="flex items-center gap-2 mt-3">
-                    <span className="text-xs font-mono flex-1 px-3 py-2 ghost-border" style={{ background: 'var(--color-surface-lowest)', color: 'var(--color-text-muted)' }}>
+                    <span className="text-xs font-mono flex-1 px-3 py-2 ghost-border bg-orbit-surface-0 text-muted-foreground">
                       ••••••••••••••••
                     </span>
                     <button
                       onClick={() => removeApiKey(provider.id)}
-                      className="px-3 py-2 text-xs font-bold uppercase tracking-widest transition-all hover:opacity-80 ghost-border"
-                      style={{ background: 'rgba(255, 180, 171, 0.1)', color: 'var(--color-error)' }}
+                      className="px-3 py-2 text-xs font-bold uppercase tracking-widest transition-all hover:opacity-80 ghost-border bg-destructive/10 text-destructive"
                     >
                       Remove
                     </button>
@@ -73,13 +72,12 @@ export function ApiKeyManager({ onClose }: { onClose: () => void }) {
                       value={newKey[provider.id] || ''}
                       onChange={(e) => setNewKey((prev) => ({ ...prev, [provider.id]: e.target.value }))}
                       placeholder="Paste API key here"
-                      className="flex-1 px-3 py-2 text-xs outline-none transition-all ghost-border"
-                      style={{ background: 'var(--color-surface-lowest)', color: 'var(--color-text-main)' }}
+                      className="flex-1 px-3 py-2 text-xs outline-none transition-all ghost-border bg-orbit-surface-0 text-foreground"
                     />
                     <button
                       onClick={() => handleSave(provider.id)}
                       disabled={saving === provider.id || !newKey[provider.id]?.trim()}
-                      className="px-4 py-2 text-xs font-bold uppercase tracking-widest transition-all hover:opacity-90 disabled:opacity-40 bg-gradient-gold"
+                      className="px-4 py-2 text-xs font-bold uppercase tracking-widest transition-all hover:opacity-90 disabled:opacity-40 liquid-gold"
                     >
                       {saving === provider.id ? 'Encrypting…' : 'Save'}
                     </button>
@@ -90,8 +88,8 @@ export function ApiKeyManager({ onClose }: { onClose: () => void }) {
           })}
         </div>
 
-        <div className="p-4 border-t text-center ghost-border" style={{ borderBottom: 'none', borderLeft: 'none', borderRight: 'none' }}>
-          <p className="text-xs" style={{ color: 'var(--color-text-muted)', opacity: 0.7 }}>
+        <div className="p-4 border-t border-border text-center">
+          <p className="text-xs text-muted-foreground opacity-70">
             🔓 Keys are encrypted with AES-256-GCM in your browser before storage
           </p>
         </div>

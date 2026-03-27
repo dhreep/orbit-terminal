@@ -21,31 +21,14 @@ function formatPercent(value: number | null): string {
 }
 
 function getRatioColor(label: string, value: number | null): string {
-  if (value === null) return 'text-on-surface-variant';
-  
+  if (value === null) return 'text-muted-foreground';
   switch (label) {
-    case 'P/E':
-      if (value < 15) return 'text-success';
-      if (value < 25) return 'text-primary-container';
-      return 'text-error';
-    case 'PEG':
-      if (value < 1) return 'text-success';
-      if (value < 2) return 'text-primary-container';
-      return 'text-error';
-    case 'D/E':
-      if (value < 1) return 'text-success';
-      if (value < 2) return 'text-primary-container';
-      return 'text-error';
-    case 'ROE':
-      if (value > 0.15) return 'text-success';
-      if (value > 0.05) return 'text-primary-container';
-      return 'text-error';
-    case 'C/R':
-      if (value > 1.5) return 'text-success';
-      if (value > 1) return 'text-primary-container';
-      return 'text-error';
-    default:
-      return 'text-on-surface';
+    case 'P/E': return value < 15 ? 'text-orbit-gain' : value < 25 ? 'text-primary' : 'text-orbit-loss';
+    case 'PEG': return value < 1 ? 'text-orbit-gain' : value < 2 ? 'text-primary' : 'text-orbit-loss';
+    case 'D/E': return value < 1 ? 'text-orbit-gain' : value < 2 ? 'text-primary' : 'text-orbit-loss';
+    case 'ROE': return value > 0.15 ? 'text-orbit-gain' : value > 0.05 ? 'text-primary' : 'text-orbit-loss';
+    case 'C/R': return value > 1.5 ? 'text-orbit-gain' : value > 1 ? 'text-primary' : 'text-orbit-loss';
+    default: return 'text-foreground';
   }
 }
 
@@ -71,10 +54,10 @@ export function RatioSidebar({ data, loading, error }: RatioSidebarProps) {
         <span className="material-symbols-outlined text-primary animate-pulse !text-xl">
           {isRateLimited ? 'hourglass_top' : 'error_outline'}
         </span>
-        <p className="text-[9px] font-mono tracking-wider text-on-surface-variant uppercase">
+        <p className="text-[9px] font-mono tracking-wider text-muted-foreground uppercase">
           {isRateLimited ? 'Rate limited' : 'Data unavailable'}
         </p>
-        <p className="text-[8px] font-mono text-on-surface-variant/50">
+        <p className="text-[8px] font-mono text-muted-foreground/50">
           {isRateLimited ? 'Retrying...' : 'Check API keys'}
         </p>
       </div>
@@ -92,40 +75,39 @@ export function RatioSidebar({ data, loading, error }: RatioSidebarProps) {
 
   return (
     <>
-      <div className="text-[9px] uppercase tracking-wider text-on-surface-variant border-b border-surface-variant/15 pb-1 font-bold">
+      <div className="text-[9px] uppercase tracking-wider text-muted-foreground border-b border-border pb-1 font-bold">
         Fundamentals
       </div>
 
       <div className="flex flex-col gap-2 overflow-y-auto">
         {ratios.map((r) => (
           <div key={r.label} className="flex justify-between items-center">
-            <span className="text-[9px] uppercase tracking-wider text-on-surface-variant">{r.label}</span>
-            <span className={`text-[12px] mono font-bold ${getRatioColor(r.label, r.value ?? null)}`}>
+            <span className="text-[9px] uppercase tracking-wider text-muted-foreground">{r.label}</span>
+            <span className={`text-[12px] font-mono font-bold ${getRatioColor(r.label, r.value ?? null)}`}>
               {r.format(r.value ?? null)}
             </span>
           </div>
         ))}
       </div>
 
-      <div className="mt-auto border-t border-surface-variant/15 pt-2 flex flex-col gap-1.5">
-        <div className="flex justify-between items-center text-[10px] mono text-on-surface">
+      <div className="mt-auto border-t border-border pt-2 flex flex-col gap-1.5">
+        <div className="flex justify-between items-center text-[10px] font-mono text-foreground">
           <span>BETA</span>
           <span className="font-bold">{formatNumber(data?.beta ?? null)}</span>
         </div>
-        <div className="flex justify-between items-center text-[10px] mono text-on-surface">
+        <div className="flex justify-between items-center text-[10px] font-mono text-foreground">
           <span>MKT CAP</span>
           <span className="font-bold text-primary">{formatNumber(data?.marketCap ?? null, 0)}</span>
         </div>
-        <div className="flex justify-between items-center text-[10px] mono text-on-surface">
+        <div className="flex justify-between items-center text-[10px] font-mono text-foreground">
           <span>DIV YIELD</span>
           <span className="font-bold">{formatPercent(data?.dividendYield ?? null)}</span>
         </div>
-        <div className="flex justify-between items-center text-[10px] mono text-on-surface">
+        <div className="flex justify-between items-center text-[10px] font-mono text-foreground">
           <span>SECTOR</span>
-          <span className="font-bold text-tertiary text-[9px] truncate max-w-[80px]" title={data?.sector}>{data?.sector ?? '—'}</span>
+          <span className="font-bold text-orbit-info text-[9px] truncate max-w-[80px]" title={data?.sector}>{data?.sector ?? '—'}</span>
         </div>
       </div>
     </>
   );
 }
-

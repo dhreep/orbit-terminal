@@ -47,21 +47,19 @@ export function SecuritySlot({ slot, onTickerChange, onTickerClear, onChartModeT
     retryDelay: (attemptIndex) => Math.min(15000 * (attemptIndex + 1), 60000),
   });
 
-  // Empty slot state
   if (!slot.ticker) {
     return (
-      <section className="flex flex-col bg-surface-container-low border border-surface-variant/15 overflow-hidden">
-        <header className="h-8 flex items-center justify-between px-2 bg-surface border-b border-surface-variant/15">
+      <section className="flex flex-col bg-card border border-border overflow-hidden">
+        <header className="h-8 flex items-center justify-between px-2 bg-secondary border-b border-border">
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-bold text-primary tracking-tighter mono">SLOT_{String(slot.id + 1).padStart(2, '0')}</span>
+            <span className="text-[10px] font-bold text-primary tracking-tighter font-mono">SLOT_{String(slot.id + 1).padStart(2, '0')}</span>
             <TickerSearch currentTicker={null} onSelect={onTickerChange} />
           </div>
         </header>
-
-        <div className="flex flex-grow overflow-hidden bg-surface-container-lowest items-center justify-center">
+        <div className="flex flex-grow overflow-hidden bg-background items-center justify-center">
           <div className="text-center">
             <div className="text-3xl mb-3 opacity-20">📡</div>
-            <p className="text-[11px] font-mono tracking-widest uppercase text-on-surface-variant">Search for a ticker to begin</p>
+            <p className="text-[11px] font-mono tracking-widest uppercase text-muted-foreground">Search for a ticker to begin</p>
           </div>
         </div>
       </section>
@@ -72,50 +70,44 @@ export function SecuritySlot({ slot, onTickerChange, onTickerClear, onChartModeT
   const TIME_RANGES: TimeRange[] = ['1W', '1M', '3M', '6M', '1Y', '5Y'];
 
   return (
-    <section className="flex flex-col bg-surface-container-low border border-surface-variant/15 overflow-hidden">
-      <header className="h-8 flex items-center justify-between px-2 bg-surface border-b border-surface-variant/15">
+    <section className="flex flex-col bg-card border border-border overflow-hidden">
+      <header className="h-8 flex items-center justify-between px-2 bg-secondary border-b border-border">
         <div className="flex items-center gap-3">
-          <span className="text-[10px] font-bold text-primary tracking-tighter mono">SLOT_{String(slot.id + 1).padStart(2, '0')}</span>
+          <span className="text-[10px] font-bold text-primary tracking-tighter font-mono">SLOT_{String(slot.id + 1).padStart(2, '0')}</span>
           <TickerSearch currentTicker={slot.ticker} onSelect={onTickerChange} />
-          {/* Company name */}
-          <span className="text-[10px] mono text-tertiary truncate max-w-[180px] hidden sm:inline" title={displayName}>
+          <span className="text-[10px] font-mono text-orbit-info truncate max-w-[180px] hidden sm:inline" title={displayName}>
             {displayName}
           </span>
         </div>
         <div className="flex items-center gap-1">
-          {/* Tab toggle */}
-          <div className="flex items-center border border-surface-variant/15 mr-1">
+          <div className="flex items-center border border-border mr-1">
             <button
               onClick={() => setActiveTab('chart')}
-              className={`px-1.5 py-0.5 text-[9px] font-mono font-bold tracking-wider transition-all ${activeTab === 'chart' ? 'bg-primary-container/20 text-primary' : 'text-on-surface-variant hover:bg-surface-container'}`}
+              className={`px-1.5 py-0.5 text-[9px] font-mono font-bold tracking-wider transition-all ${activeTab === 'chart' ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-accent'}`}
             >
               CHART
             </button>
             <button
               onClick={() => setActiveTab('news')}
-              className={`px-1.5 py-0.5 text-[9px] font-mono font-bold tracking-wider transition-all ${activeTab === 'news' ? 'bg-primary-container/20 text-primary' : 'text-on-surface-variant hover:bg-surface-container'}`}
+              className={`px-1.5 py-0.5 text-[9px] font-mono font-bold tracking-wider transition-all ${activeTab === 'news' ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-accent'}`}
             >
               NEWS
             </button>
           </div>
-          {/* Indicator toggle */}
           <button
             onClick={() => setShowIndicatorSelector(!showIndicatorSelector)}
-            className={`p-0.5 transition-colors ${showIndicatorSelector ? 'text-primary' : 'text-on-surface-variant hover:text-primary'}`}
+            className={`p-0.5 transition-colors ${showIndicatorSelector ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
             title="Technical Indicators"
           >
             <span className="material-symbols-outlined !text-sm">analytics</span>
           </button>
-          {/* Time range selector */}
-          <div className="flex items-center border border-surface-variant/15 mr-1">
+          <div className="flex items-center border border-border mr-1">
             {TIME_RANGES.map((range) => (
               <button
                 key={range}
                 onClick={() => setTimeRange(range)}
                 className={`px-1.5 py-0.5 text-[9px] font-mono font-bold tracking-wider transition-all ${
-                  timeRange === range
-                    ? 'bg-primary-container/20 text-primary'
-                    : 'text-on-surface-variant hover:bg-surface-container'
+                  timeRange === range ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-accent'
                 }`}
               >
                 {range}
@@ -124,7 +116,7 @@ export function SecuritySlot({ slot, onTickerChange, onTickerClear, onChartModeT
           </div>
           <button
             onClick={onTickerClear}
-            className="p-0.5 text-on-surface-variant hover:text-error transition-colors"
+            className="p-0.5 text-muted-foreground hover:text-destructive transition-colors"
             title="Clear ticker"
           >
             <span className="material-symbols-outlined !text-sm">close</span>
@@ -132,16 +124,14 @@ export function SecuritySlot({ slot, onTickerChange, onTickerClear, onChartModeT
         </div>
       </header>
 
-      {/* Indicator Selector */}
       {showIndicatorSelector && (
-        <div className="px-2 py-1 bg-surface border-b border-surface-variant/15 overflow-x-auto">
+        <div className="px-2 py-1 bg-secondary border-b border-border overflow-x-auto">
           <IndicatorSelector selected={indicators} onChange={setIndicators} />
         </div>
       )}
 
       <div className="flex flex-grow overflow-hidden">
-        {/* Chart / News area */}
-        <div className="flex-1 bg-surface-container-lowest relative flex flex-col overflow-hidden">
+        <div className="flex-1 bg-background relative flex flex-col overflow-hidden">
           {activeTab === 'news' ? (
             <NewsFeed ticker={slot.ticker} />
           ) : (
@@ -153,31 +143,23 @@ export function SecuritySlot({ slot, onTickerChange, onTickerClear, onChartModeT
                     <div className="skeleton w-16 h-3 mx-auto" />
                   </div>
                 ) : candles && candles.length > 0 ? (
-                  <PriceChart
-                    data={candles}
-                    mode={slot.chartMode}
-                    onToggleMode={onChartModeToggle}
-                    ticker={slot.ticker}
-                  />
+                  <PriceChart data={candles} mode={slot.chartMode} onToggleMode={onChartModeToggle} ticker={slot.ticker} />
                 ) : candlesError ? (
                   <div className="w-full h-full flex flex-col justify-center items-center gap-2">
                     <span className="material-symbols-outlined text-primary animate-pulse !text-2xl">sync</span>
-                    <p className="text-[11px] font-mono tracking-widest text-on-surface-variant uppercase">
+                    <p className="text-[11px] font-mono tracking-widest text-muted-foreground uppercase">
                       {(candlesError as Error).message?.includes('429') || (candlesError as Error).message?.includes('rate')
                         ? 'Rate limited — retrying...'
                         : 'Loading chart data...'}
                     </p>
-                    <p className="text-[9px] font-mono text-on-surface-variant/50">Free tier: 5 calls/min</p>
+                    <p className="text-[9px] font-mono text-muted-foreground/50">Free tier: 5 calls/min</p>
                   </div>
                 ) : (
                   <div className="w-full h-full flex justify-center items-center">
-                    <p className="text-[11px] font-mono tracking-widest text-on-surface-variant">
-                      No chart data available
-                    </p>
+                    <p className="text-[11px] font-mono tracking-widest text-muted-foreground">No chart data available</p>
                   </div>
                 )}
               </div>
-              {/* Indicator Overlay */}
               {candles && candles.length > 0 && indicators.length > 0 && (
                 <IndicatorOverlay data={candles} indicators={indicators} />
               )}
@@ -185,13 +167,12 @@ export function SecuritySlot({ slot, onTickerChange, onTickerClear, onChartModeT
           )}
         </div>
 
-        {/* Fundamentals sidebar */}
-        <div className="w-[140px] min-w-[140px] bg-surface-container-low border-l border-surface-variant/15 p-2 flex flex-col gap-2 overflow-y-auto">
+        <div className="w-[140px] min-w-[140px] bg-card border-l border-border p-2 flex flex-col gap-2 overflow-y-auto">
           <RatioSidebar data={fundamentals || null} loading={fundamentalsLoading} error={fundamentalsError as Error | null} />
         </div>
       </div>
 
-      <footer className="bg-surface border-t border-surface-variant/15">
+      <footer className="bg-secondary border-t border-border">
         <TradeThesis slotId={slot.id} ticker={slot.ticker} />
       </footer>
     </section>

@@ -23,7 +23,7 @@ export function IndicatorSelector({ selected, onChange }: IndicatorSelectorProps
   return (
     <div className="flex items-center gap-3">
       {INDICATORS.map((ind) => (
-        <Label key={ind.id} className="flex items-center gap-1 cursor-pointer text-[9px] font-mono text-on-surface-variant uppercase tracking-wider">
+        <Label key={ind.id} className="flex items-center gap-1 cursor-pointer text-[9px] font-mono text-muted-foreground uppercase tracking-wider">
           <Switch
             size="sm"
             checked={selected.includes(ind.id)}

@@ -18,8 +18,8 @@ function Sparkline({ data }: { data: number[] }) {
   const points = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / range) * h}`).join(' ');
   const up = data[data.length - 1] >= data[0];
   return (
-    <svg width={w} height={h} className="shrink-0">
-      <polyline points={points} fill="none" stroke={up ? '#22c55e' : '#ef4444'} strokeWidth="1.5" />
+    <svg width={w} height={h} className={cn('shrink-0', up ? 'text-green-400' : 'text-red-400')}>
+      <polyline points={points} fill="none" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 }

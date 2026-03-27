@@ -85,10 +85,7 @@ export function TickerSearch({ currentTicker, onSelect }: TickerSearchProps) {
     onSelect(symbol);
   };
 
-  // Reset selectedIndex when results change
-  useEffect(() => {
-    setSelectedIndex(-1);
-  }, [results]);
+  useEffect(() => { setSelectedIndex(-1); }, [results]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!showResults || results.length === 0) {
@@ -106,9 +103,7 @@ export function TickerSearch({ currentTicker, onSelect }: TickerSearchProps) {
         break;
       case 'Enter':
         e.preventDefault();
-        if (selectedIndex >= 0 && selectedIndex < results.length) {
-          handleSelect(results[selectedIndex].symbol);
-        }
+        if (selectedIndex >= 0 && selectedIndex < results.length) handleSelect(results[selectedIndex].symbol);
         break;
       case 'Escape':
         setIsOpen(false);
@@ -117,12 +112,9 @@ export function TickerSearch({ currentTicker, onSelect }: TickerSearchProps) {
     }
   };
 
-  // Close on click outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setIsOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -133,7 +125,7 @@ export function TickerSearch({ currentTicker, onSelect }: TickerSearchProps) {
   return (
     <div ref={containerRef} className="relative flex items-center">
       {!currentTicker && (
-        <span className="material-symbols-outlined absolute left-1 text-on-surface-variant !text-[10px] pointer-events-none z-10">search</span>
+        <span className="material-symbols-outlined absolute left-1 text-muted-foreground !text-[10px] pointer-events-none z-10">search</span>
       )}
       <input
         ref={inputRef}
@@ -141,9 +133,7 @@ export function TickerSearch({ currentTicker, onSelect }: TickerSearchProps) {
         value={query !== '' ? query : (currentTicker || '')}
         onChange={(e) => handleChange(e.target.value)}
         onFocus={() => {
-          if (currentTicker && !query) {
-            setQuery('');
-          }
+          if (currentTicker && !query) setQuery('');
           setIsOpen(true);
         }}
         onKeyDown={handleKeyDown}
@@ -151,20 +141,20 @@ export function TickerSearch({ currentTicker, onSelect }: TickerSearchProps) {
         role="combobox"
         aria-expanded={hasResults}
         aria-autocomplete="list"
-        className={`bg-surface-container-lowest border-none text-[11px] font-mono h-6 w-32 focus:ring-1 focus:ring-primary-container uppercase text-primary outline-none transition-all ${currentTicker ? 'pl-2' : 'pl-5'}`}
+        className={`bg-background border-none text-[11px] font-mono h-6 w-32 focus:ring-1 focus:ring-primary uppercase text-primary outline-none transition-all ${currentTicker ? 'pl-2' : 'pl-5'}`}
       />
 
       {showResults && (
-        <div className="absolute top-full left-0 mt-1 w-64 shadow-xl z-50 overflow-hidden border border-surface-variant/15 bg-surface-container-low" role="listbox">
+        <div className="absolute top-full left-0 mt-1 w-64 shadow-xl z-50 overflow-hidden border border-border bg-card" role="listbox">
           {loading ? (
-            <div className="p-3 text-xs uppercase tracking-widest text-on-surface-variant">Searching…</div>
+            <div className="p-3 text-xs uppercase tracking-widest text-muted-foreground">Searching…</div>
           ) : error ? (
-            <div className="p-3 text-xs uppercase tracking-widest text-error flex items-center gap-2">
+            <div className="p-3 text-xs uppercase tracking-widest text-destructive flex items-center gap-2">
               <span className="material-symbols-outlined !text-sm">warning</span>
               {error}
             </div>
           ) : results.length === 0 ? (
-            <div className="p-3 text-xs uppercase tracking-widest text-on-surface-variant">No results found</div>
+            <div className="p-3 text-xs uppercase tracking-widest text-muted-foreground">No results found</div>
           ) : (
             results.map((r, i) => (
               <button
@@ -172,13 +162,13 @@ export function TickerSearch({ currentTicker, onSelect }: TickerSearchProps) {
                 role="option"
                 aria-selected={i === selectedIndex}
                 onClick={() => handleSelect(r.symbol)}
-                className={`w-full text-left px-3 py-2 text-xs transition-colors hover:bg-surface flex items-center justify-between border-b border-surface-variant/15 last:border-b-0 ${i === selectedIndex ? 'bg-surface' : ''}`}
+                className={`w-full text-left px-3 py-2 text-xs transition-colors hover:bg-accent flex items-center justify-between border-b border-border last:border-b-0 ${i === selectedIndex ? 'bg-accent' : ''}`}
               >
                 <div>
                   <span className="font-mono font-bold tracking-widest uppercase text-primary">{r.symbol}</span>
-                  <span className="ml-2 uppercase tracking-wide text-on-surface-variant">{r.name?.substring(0, 30)}</span>
+                  <span className="ml-2 uppercase tracking-wide text-muted-foreground">{r.name?.substring(0, 30)}</span>
                 </div>
-                <span className="text-[10px] uppercase tracking-wider text-on-surface-variant opacity-70">{r.exchange}</span>
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground opacity-70">{r.exchange}</span>
               </button>
             ))
           )}
