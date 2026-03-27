@@ -1,8 +1,14 @@
 import { Router } from 'express';
 import { getDatabase } from '../db/database.js';
+import { generateSessionToken, clearSessionToken } from '../middleware/auth.js';
 import type { ApiResponse, VaultInitRequest, VaultVerifyRequest, StoreKeyRequest, EncryptedKeyRecord, EncryptedBlob } from '@orbit/shared';
 
 const router = Router();
+
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_MS = 30_000;
+let failedAttempts = 0;
+let lockoutUntil = 0;
 
 // ─── Initialize vault (first-time setup) ──────────────────
 router.post('/init', (req, res) => {
@@ -36,6 +42,11 @@ router.get('/status', (_req, res) => {
 
 // ─── Verify master password ──────────────────────────────
 router.post('/verify', (req, res) => {
+  if (Date.now() < lockoutUntil) {
+    const remaining = Math.ceil((lockoutUntil - Date.now()) / 1000);
+    return res.status(429).json({ success: false, error: `Too many attempts. Try again in ${remaining}s` } satisfies ApiResponse<never>);
+  }
+
   const { passwordHash } = req.body as VaultVerifyRequest;
   const db = getDatabase();
   const vault = db.prepare('SELECT password_hash FROM vault WHERE id = 1').get() as { password_hash: string } | undefined;
@@ -45,10 +56,17 @@ router.post('/verify', (req, res) => {
   }
 
   if (vault.password_hash !== passwordHash) {
+    failedAttempts++;
+    if (failedAttempts >= MAX_ATTEMPTS) {
+      lockoutUntil = Date.now() + LOCKOUT_MS;
+      failedAttempts = 0;
+    }
     return res.status(401).json({ success: false, error: 'Invalid password' } satisfies ApiResponse<never>);
   }
 
-  res.json({ success: true } satisfies ApiResponse<never>);
+  failedAttempts = 0;
+  const token = generateSessionToken();
+  return res.json({ success: true, data: { token } });
 });
 
 // ─── Store encrypted API key ─────────────────────────────
@@ -108,6 +126,7 @@ router.delete('/keys/:provider', (req, res) => {
 // ─── Reset Vault (Destructive) ───────────────────────────
 router.post('/reset', (_req, res) => {
   const db = getDatabase();
+  clearSessionToken();
   db.exec(`
     DELETE FROM vault;
     DELETE FROM encrypted_keys;

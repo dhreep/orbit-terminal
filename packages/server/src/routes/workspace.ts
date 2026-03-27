@@ -26,7 +26,11 @@ router.get('/', (_req, res) => {
     return res.json({ success: true, data: defaultWorkspace } satisfies ApiResponse<Workspace>);
   }
 
-  res.json({ success: true, data: JSON.parse(row.data) } satisfies ApiResponse<Workspace>);
+  try {
+    res.json({ success: true, data: JSON.parse(row.data) } satisfies ApiResponse<any>);
+  } catch {
+    res.status(500).json({ success: false, error: 'Corrupted workspace data' } satisfies ApiResponse<never>);
+  }
 });
 
 // ─── Save workspace state ────────────────────────────────
@@ -85,10 +89,13 @@ router.get('/export', (_req, res) => {
 
 // ─── Import workspace ────────────────────────────────────
 router.post('/import', (req, res) => {
-  const importData = req.body as WorkspaceExport;
-
-  if (importData.version !== 1) {
-    return res.status(400).json({ success: false, error: 'Unsupported export version' } satisfies ApiResponse<never>);
+  const importData = req.body;
+  if (!importData || importData.version !== 1 || !importData.workspace || !Array.isArray(importData.notes)) {
+    return res.status(400).json({ success: false, error: 'Invalid import format' } satisfies ApiResponse<never>);
+  }
+  const ws = importData.workspace;
+  if (!Array.isArray(ws.slots) || !ws.layout) {
+    return res.status(400).json({ success: false, error: 'Invalid workspace data' } satisfies ApiResponse<never>);
   }
 
   const db = getDatabase();
