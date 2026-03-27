@@ -254,8 +254,11 @@
 
 /* ─── Markdown Styles (Trade Thesis) ───────────────────── */
 .markdown-body { color: var(--foreground); font-size: 0.85rem; line-height: 1.6; }
-.markdown-body h1, .markdown-body h2, .markdown-body h3 { color: var(--foreground); margin-top: 0.8em; margin-bottom: 0.4em; font-weight: 600; }
-.markdown-body p { margin-bottom: 0.5em; }
-.markdown-body code { font-family: var(--font-mono); background: var(--orbit-surface-1); padding: 0.15em 0.35em; font-size: 0.8rem; }
-.markdown-body ul, .markdown-body ol { padding-left: 1.5em; margin-bottom: 0.5em; }
+.markdown-body h1, .markdown-body h2, .markdown-body h3 { color: var(--foreground); margin-top: 0.8em !important; margin-bottom: 0.4em !important; font-weight: 600; }
+.markdown-body p { margin-bottom: 0.5em !important; }
+.markdown-body code { font-family: var(--font-mono); background: var(--orbit-surface-1); padding: 0.15em 0.35em !important; font-size: 0.8rem; }
+.markdown-body ul, .markdown-body ol { padding-left: 1.5em !important; margin-bottom: 0.5em !important; list-style: revert !important; }
+.markdown-body li { margin-bottom: 0.2em !important; }
 .markdown-body strong { color: var(--primary); }
+.markdown-body blockquote { border-left: 2px solid var(--primary); padding-left: 0.8em !important; margin: 0.5em 0 !important; opacity: 0.8; }
+.markdown-body hr { border-color: var(--border); margin: 0.8em 0 !important; }
