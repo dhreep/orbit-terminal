@@ -4,6 +4,17 @@ import vaultRouter from './routes/vault.js';
 import notesRouter from './routes/notes.js';
 import workspaceRouter from './routes/workspace.js';
 import marketRouter from './routes/market.js';
+import watchlistRouter from './routes/watchlist.js';
+import alertsRouter from './routes/alerts.js';
+import cryptoRouter from './routes/crypto.js';
+import forexRouter from './routes/forex.js';
+import insiderRouter from './routes/insider.js';
+import economicRouter from './routes/economic.js';
+import sentimentRouter from './routes/sentiment.js';
+import newsRouter from './routes/news.js';
+import portfolioRouter from './routes/portfolio.js';
+import earningsRouter from './routes/earnings.js';
+import journalRouter from './routes/journal.js';
 import { getDatabase, closeDatabase } from './db/database.js';
 import { requireAuth } from './middleware/auth.js';
 
@@ -20,6 +31,17 @@ app.use('/api/vault', vaultRouter);
 app.use('/api/notes', requireAuth, notesRouter);
 app.use('/api/workspace', requireAuth, workspaceRouter);
 app.use('/api/market', requireAuth, marketRouter);
+app.use('/api/watchlist', requireAuth, watchlistRouter);
+app.use('/api/alerts', requireAuth, alertsRouter);
+app.use('/api/crypto', requireAuth, cryptoRouter);
+app.use('/api/forex', requireAuth, forexRouter);
+app.use('/api/insider', requireAuth, insiderRouter);
+app.use('/api/economic', requireAuth, economicRouter);
+app.use('/api/sentiment', requireAuth, sentimentRouter);
+app.use('/api/news', requireAuth, newsRouter);
+app.use('/api/portfolio', requireAuth, portfolioRouter);
+app.use('/api/earnings', requireAuth, earningsRouter);
+app.use('/api/journal', requireAuth, journalRouter);
 
 // ─── Health check ───────────────────────────────────────
 app.get('/api/health', (_req, res) => {
