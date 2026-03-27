@@ -69,6 +69,8 @@ interface WatchlistPanelProps {
 export function WatchlistPanel({ open, onOpenChange }: WatchlistPanelProps) {
   const [addInput, setAddInput] = useState('');
   const [showAdd, setShowAdd] = useState(false);
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [overIdx, setOverIdx] = useState<number | null>(null);
   const qc = useQueryClient();
 
   const { data: watchlist = [] } = useQuery({
@@ -86,19 +88,33 @@ export function WatchlistPanel({ open, onOpenChange }: WatchlistPanelProps) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['watchlist'] }),
   });
 
+  const clearAllMutation = useMutation({
+    mutationFn: async () => {
+      const items = qc.getQueryData<WatchlistItem[]>(['watchlist']) || [];
+      await Promise.all(items.map(item => api.watchlist.remove(item.ticker)));
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['watchlist'] }),
+  });
+
+  const reorderMutation = useMutation({
+    mutationFn: (tickers: string[]) => api.watchlist.reorder(tickers),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['watchlist'] }),
+  });
+
   const handleAdd = useCallback(() => {
     const t = addInput.trim().toUpperCase();
     if (t) addMutation.mutate(t);
   }, [addInput, addMutation]);
 
-  const handleMove = useCallback((index: number, dir: -1 | 1) => {
-    const newIdx = index + dir;
-    if (newIdx < 0 || newIdx >= watchlist.length) return;
-    const reordered = [...watchlist];
-    [reordered[index], reordered[newIdx]] = [reordered[newIdx], reordered[index]];
-    api.watchlist.reorder(reordered.map((w) => w.ticker));
-    qc.invalidateQueries({ queryKey: ['watchlist'] });
-  }, [watchlist, qc]);
+  const handleDrop = useCallback((targetIdx: number) => {
+    if (dragIdx === null || dragIdx === targetIdx) return;
+    const items = [...watchlist];
+    const [moved] = items.splice(dragIdx, 1);
+    items.splice(targetIdx, 0, moved);
+    reorderMutation.mutate(items.map(w => w.ticker));
+    setDragIdx(null);
+    setOverIdx(null);
+  }, [dragIdx, watchlist, reorderMutation]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -106,9 +122,22 @@ export function WatchlistPanel({ open, onOpenChange }: WatchlistPanelProps) {
         <SheetHeader className="px-4 pt-4 pb-2 border-b border-border/30">
           <div className="flex items-center justify-between">
             <SheetTitle className="text-sm font-bold uppercase tracking-widest">Watchlist</SheetTitle>
-            <Button variant="ghost" size="icon-xs" onClick={() => setShowAdd(!showAdd)} aria-label="Add ticker">
-              <span className="material-symbols-outlined !text-sm">add</span>
-            </Button>
+            <div className="flex items-center gap-1">
+              {watchlist.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={() => { if (confirm('Clear all tickers from watchlist?')) clearAllMutation.mutate(); }}
+                  disabled={clearAllMutation.isPending}
+                  aria-label="Clear all tickers"
+                >
+                  <span className="material-symbols-outlined !text-sm">delete_sweep</span>
+                </Button>
+              )}
+              <Button variant="ghost" size="icon-xs" onClick={() => setShowAdd(!showAdd)} aria-label="Add ticker">
+                <span className="material-symbols-outlined !text-sm">add</span>
+              </Button>
+            </div>
           </div>
           <SheetDescription className="text-xs">Track your favorite tickers</SheetDescription>
         </SheetHeader>
@@ -132,28 +161,20 @@ export function WatchlistPanel({ open, onOpenChange }: WatchlistPanelProps) {
             <p className="text-center text-muted-foreground text-xs py-8">No tickers in watchlist</p>
           ) : (
             watchlist.map((item, i) => (
-              <div key={item.ticker} className="flex items-center">
-                <div className="flex flex-col">
-                  <Button
-                    variant="ghost" size="icon-xs"
-                    className={cn('h-3 w-4', i === 0 && 'invisible')}
-                    onClick={() => handleMove(i, -1)}
-                    aria-label="Move up"
-                  >
-                    <span className="material-symbols-outlined !text-[10px]">expand_less</span>
-                  </Button>
-                  <Button
-                    variant="ghost" size="icon-xs"
-                    className={cn('h-3 w-4', i === watchlist.length - 1 && 'invisible')}
-                    onClick={() => handleMove(i, 1)}
-                    aria-label="Move down"
-                  >
-                    <span className="material-symbols-outlined !text-[10px]">expand_more</span>
-                  </Button>
-                </div>
-                <div className="flex-1">
-                  <WatchlistRow item={item} onRemove={(t) => removeMutation.mutate(t)} />
-                </div>
+              <div
+                key={item.ticker}
+                draggable
+                onDragStart={() => setDragIdx(i)}
+                onDragOver={(e) => { e.preventDefault(); setOverIdx(i); }}
+                onDrop={() => handleDrop(i)}
+                onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
+                className={cn(
+                  'cursor-grab active:cursor-grabbing transition-colors',
+                  overIdx === i && dragIdx !== null && dragIdx !== i && 'border-t-2 border-primary',
+                  dragIdx === i && 'opacity-40',
+                )}
+              >
+                <WatchlistRow item={item} onRemove={(t) => removeMutation.mutate(t)} />
               </div>
             ))
           )}

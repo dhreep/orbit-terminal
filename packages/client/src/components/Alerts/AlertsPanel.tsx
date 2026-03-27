@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { api } from '@/services/api';
+import { TickerAutocomplete } from '@/components/shared/TickerAutocomplete';
 import type { AlertCondition } from '@orbit/shared';
 
 interface AlertsPanelProps {
@@ -59,12 +60,11 @@ export function AlertsPanel({ open, onOpenChange }: AlertsPanelProps) {
         {showForm && (
           <div className="flex flex-col gap-2 px-3 py-2 border-b border-border/20">
             <div className="flex gap-1">
-              <Input
+              <TickerAutocomplete
                 value={ticker}
-                onChange={(e) => setTicker(e.target.value)}
+                onChange={setTicker}
                 placeholder="AAPL"
-                className="h-7 text-xs font-mono uppercase flex-1"
-                autoFocus
+                className="flex-1"
               />
               <Input
                 value={price}

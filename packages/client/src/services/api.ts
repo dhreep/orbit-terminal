@@ -181,8 +181,8 @@ export const api = {
 
   // ─── Forex ──────────────────────────────────────────────
   forex: {
-    rates: (base = 'USD') => request<ForexRate[]>(`/forex/rates?base=${base}`),
-    getLatest: (base: string) => request<ForexRate[]>(`/forex/rates?base=${base}`),
+    rates: (base = 'USD') => request<ForexRate[]>(`/forex/latest?base=${base}`),
+    getLatest: (base: string) => request<ForexRate[]>(`/forex/latest?base=${base}`),
     getHistory: (base: string, quote: string, days: number) =>
       request<ForexRate[]>(`/forex/history?base=${base}&quote=${quote}&days=${days}`),
   },
@@ -195,14 +195,14 @@ export const api = {
 
   // ─── Economic Calendar ──────────────────────────────────
   economic: {
-    events: () => request<EconomicEvent[]>('/economic/events'),
-    getAll: () => request<EconomicEvent[]>('/economic/events'),
+    events: () => request<EconomicEvent[]>('/economic'),
+    getAll: () => request<EconomicEvent[]>('/economic'),
   },
 
   // ─── Sentiment ──────────────────────────────────────────
   sentiment: {
-    trending: () => request<SentimentData[]>('/sentiment/trending'),
-    getAll: () => request<SentimentData[]>('/sentiment/trending'),
+    trending: () => request<SentimentData[]>('/sentiment'),
+    getAll: () => request<SentimentData[]>('/sentiment'),
     getByTicker: (ticker: string) => request<SentimentData>(`/sentiment/${ticker}`),
   },
 };

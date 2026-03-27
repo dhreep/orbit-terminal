@@ -8,15 +8,14 @@ import { SecuritySlot } from './components/SecuritySlot/SecuritySlot';
 import { CommandPalette } from './components/CommandPalette';
 import { WatchlistPanel } from './components/Watchlist/WatchlistPanel';
 import { AlertsPanel } from './components/Alerts/AlertsPanel';
-import { AIChatPanel } from './components/AIChat/AIChatPanel';
 import { ScreenerView } from './components/Screener/ScreenerView';
 import { CorrelationView } from './components/DataExplorer/CorrelationView';
 import { ExportButton } from './components/Export/ExportButton';
 import { DemoProvider, useDemo } from './components/Demo/DemoProvider';
 import { useTheme } from './hooks/useTheme';
 import { Badge } from './components/ui/badge';
+import { cn } from './lib/utils';
 import { api } from './services/api';
-import { getNYSEStatus } from './utils/market';
 import { PortfolioView } from './components/Portfolio/PortfolioView';
 import { EarningsCalendar } from './components/Earnings/EarningsCalendar';
 import { TradeJournal } from './components/Journal/TradeJournal';
@@ -81,17 +80,30 @@ function Terminal() {
   const [cmdPaletteOpen, setCmdPaletteOpen] = useState(false);
   const [watchlistOpen, setWatchlistOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
-  const [aiChatOpen, setAiChatOpen] = useState(false);
   const [zenMode, setZenMode] = useState(false);
   const [currentView, setCurrentView] = useState<AppView>('terminal');
-  const nyseStatus = getNYSEStatus();
+  const [dragSlot, setDragSlot] = useState<number | null>(null);
+  const [overSlot, setOverSlot] = useState<number | null>(null);
+
+  const handleSlotDrop = useCallback((targetIdx: number) => {
+    if (dragSlot === null || dragSlot === targetIdx) return;
+    setWorkspace(prev => {
+      const slots = [...prev.slots];
+      const src = { ticker: slots[dragSlot].ticker, chartMode: slots[dragSlot].chartMode, thesis: slots[dragSlot].thesis };
+      const tgt = { ticker: slots[targetIdx].ticker, chartMode: slots[targetIdx].chartMode, thesis: slots[targetIdx].thesis };
+      slots[dragSlot] = { ...slots[dragSlot], ...tgt };
+      slots[targetIdx] = { ...slots[targetIdx], ...src };
+      return { ...prev, slots, updatedAt: new Date().toISOString() };
+    });
+    setDragSlot(null);
+    setOverSlot(null);
+  }, [dragSlot]);
 
   useHotkeys('mod+k', (e) => { e.preventDefault(); setCmdPaletteOpen(true); }, { enableOnFormTags: true });
   useHotkeys('mod+w', (e) => { e.preventDefault(); setWatchlistOpen((v) => !v); }, { enableOnFormTags: true });
   useHotkeys('mod+a', (e) => { e.preventDefault(); setAlertsOpen((v) => !v); }, { enableOnFormTags: true });
-  useHotkeys('mod+i', (e) => { e.preventDefault(); setAiChatOpen((v) => !v); }, { enableOnFormTags: true });
   useHotkeys('mod+z', (e) => { e.preventDefault(); setZenMode((v) => !v); }, { enableOnFormTags: true });
-  useHotkeys('escape', () => { setCmdPaletteOpen(false); setWatchlistOpen(false); setAlertsOpen(false); setShowKeyManager(false); setAiChatOpen(false); if (zenMode) setZenMode(false); });
+  useHotkeys('escape', () => { setCmdPaletteOpen(false); setWatchlistOpen(false); setAlertsOpen(false); setShowKeyManager(false); if (zenMode) setZenMode(false); });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -173,7 +185,6 @@ function Terminal() {
 
   const handleNavigate = useCallback((view: string) => {
     if (view === 'watchlist') setWatchlistOpen(true);
-    else if (view === 'aichat') setAiChatOpen(true);
     else if (['terminal', 'screener', 'correlation', 'portfolio', 'journal', 'explorer', 'earnings'].includes(view)) {
       setCurrentView(view as AppView);
     }
@@ -185,7 +196,6 @@ function Terminal() {
     else if (action === 'toggleLayout') toggleLayout();
     else if (action === 'zenMode') setZenMode((v) => !v);
     else if (action === 'toggleTheme') toggleTheme();
-    else if (action === 'aiChat') setAiChatOpen(true);
   }, [handleExport, vault, toggleLayout, toggleTheme]);
 
   // ─── Vault gates ────────────────────────────────────────
@@ -271,9 +281,6 @@ function Terminal() {
             <button onClick={() => setAlertsOpen(true)} className="p-2 text-muted-foreground hover:bg-accent transition-colors" title="Price Alerts (⌘A)" aria-label="Toggle alerts">
               <span className="material-symbols-outlined">notifications</span>
             </button>
-            <button onClick={() => setAiChatOpen(true)} className="p-2 text-muted-foreground hover:bg-accent transition-colors" title="AI Chat (⌘I)" aria-label="Toggle AI chat">
-              <span className="material-symbols-outlined">smart_toy</span>
-            </button>
             <button onClick={toggleLayout} className="p-2 text-muted-foreground hover:bg-accent transition-colors" title="Toggle Layout" aria-label="Toggle layout">
               <span className="material-symbols-outlined">{workspace.layout === 'grid' ? 'grid_view' : 'splitscreen'}</span>
             </button>
@@ -312,19 +319,38 @@ function Terminal() {
       <main className="flex-grow overflow-hidden bg-background">
         {currentView === 'terminal' && (
           <div className={`h-full p-1 ${workspace.layout === 'grid' ? 'grid-2x2' : 'grid-spotlight'}`}>
-            {workspace.slots.map((slot) => (
-              <SecuritySlot
+            {workspace.slots.map((slot, i) => (
+              <div
                 key={slot.id}
-                slot={slot}
-                onTickerChange={(ticker) => updateSlot(slot.id, { ticker })}
-                onTickerClear={() => updateSlot(slot.id, { ticker: null })}
-                onChartModeToggle={() =>
-                  updateSlot(slot.id, {
-                    chartMode: slot.chartMode === 'candle' ? 'line' : 'candle',
-                  })
-                }
-                isSpotlight={workspace.layout === 'spotlight' && slot.id === 0}
-              />
+                className={cn(
+                  'relative',
+                  overSlot === i && dragSlot !== null && dragSlot !== i && 'ring-2 ring-primary',
+                )}
+                onDragOver={(e) => { e.preventDefault(); setOverSlot(i); }}
+                onDragLeave={() => setOverSlot(null)}
+                onDrop={() => handleSlotDrop(i)}
+              >
+                <SecuritySlot
+                  slot={slot}
+                  onTickerChange={(ticker) => updateSlot(slot.id, { ticker })}
+                  onTickerClear={() => updateSlot(slot.id, { ticker: null })}
+                  onChartModeToggle={() =>
+                    updateSlot(slot.id, {
+                      chartMode: slot.chartMode === 'candle' ? 'line' : 'candle',
+                    })
+                  }
+                  isSpotlight={workspace.layout === 'spotlight' && slot.id === 0}
+                />
+                <div
+                  draggable
+                  onDragStart={() => setDragSlot(i)}
+                  onDragEnd={() => { setDragSlot(null); setOverSlot(null); }}
+                  className="absolute bottom-1 right-1 cursor-grab active:cursor-grabbing p-1 text-muted-foreground/30 hover:text-muted-foreground/60 z-10"
+                  title="Drag to rearrange"
+                >
+                  <span className="material-symbols-outlined !text-sm">drag_indicator</span>
+                </div>
+              </div>
             ))}
           </div>
         )}
@@ -343,7 +369,6 @@ function Terminal() {
           {demo.isDemoMode && <span className="text-primary font-bold">DEMO MODE</span>}
         </div>
         <div className="flex gap-4">
-          <span className={nyseStatus.isOpen ? 'text-orbit-gain' : 'text-orbit-loss'}>NYSE: {nyseStatus.label}</span>
           <span className="text-primary font-bold">UTC: {currentTime.toISOString().substring(11, 19)}</span>
         </div>
       </footer>
@@ -352,7 +377,6 @@ function Terminal() {
       <CommandPalette open={cmdPaletteOpen} onOpenChange={setCmdPaletteOpen} onSelectTicker={handleSelectTicker} onNavigate={handleNavigate} onAction={handleAction} />
       <WatchlistPanel open={watchlistOpen} onOpenChange={setWatchlistOpen} />
       <AlertsPanel open={alertsOpen} onOpenChange={setAlertsOpen} />
-      <AIChatPanel open={aiChatOpen} onOpenChange={setAiChatOpen} />
     </div>
   );
 }

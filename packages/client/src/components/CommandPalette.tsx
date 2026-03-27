@@ -71,7 +71,6 @@ export function CommandPalette({ open, onOpenChange, onSelectTicker, onNavigate,
               ['earnings', 'Earnings Calendar', ''],
               ['screener', 'Screener', ''],
               ['correlation', 'Correlation Matrix', ''],
-              ['aichat', 'AI Chat', '⌘I'],
             ] as const).map(([view, label, shortcut]) => (
               <CommandItem key={view} onSelect={() => select(() => onNavigate(view))}>
                 <span>{label}</span>
@@ -89,7 +88,6 @@ export function CommandPalette({ open, onOpenChange, onSelectTicker, onNavigate,
               ['toggleLayout', 'Toggle Layout'],
               ['zenMode', 'Toggle Zen Mode'],
               ['toggleTheme', 'Toggle Dark/Light Theme'],
-              ['aiChat', 'Open AI Chat'],
             ] as const).map(([action, label]) => (
               <CommandItem key={action} onSelect={() => select(() => onAction(action))}>
                 <span>{label}</span>

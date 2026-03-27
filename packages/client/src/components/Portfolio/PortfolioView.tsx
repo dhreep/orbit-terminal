@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TickerAutocomplete } from '@/components/shared/TickerAutocomplete';
 import type { Holding, Transaction } from '@orbit/shared';
 
 function pnlColor(val: number) {
@@ -147,7 +148,7 @@ function HoldingsTab({ holdings }: { holdings: Array<Holding & { currentPrice: n
       </Table>
 
       <form className="flex gap-2 items-end" onSubmit={(e) => { e.preventDefault(); if (ticker && shares && avgCost) addMut.mutate(); }}>
-        <Input placeholder="Ticker" value={ticker} onChange={(e) => setTicker(e.target.value)} className="w-24" />
+        <TickerAutocomplete value={ticker} onChange={setTicker} placeholder="Ticker" className="w-24" />
         <Input placeholder="Shares" type="number" value={shares} onChange={(e) => setShares(e.target.value)} className="w-24" />
         <Input placeholder="Avg Cost" type="number" step="0.01" value={avgCost} onChange={(e) => setAvgCost(e.target.value)} className="w-28" />
         <Button type="submit" size="sm" disabled={addMut.isPending}>Add Holding</Button>
@@ -196,7 +197,7 @@ function TransactionsTab({ transactions }: { transactions: Transaction[] }) {
       </Table>
 
       <form className="flex gap-2 items-end flex-wrap" onSubmit={(e) => { e.preventDefault(); if (form.ticker && form.shares && form.price) addMut.mutate(); }}>
-        <Input placeholder="Ticker" value={form.ticker} onChange={(e) => setForm((f) => ({ ...f, ticker: e.target.value }))} className="w-24" />
+        <TickerAutocomplete value={form.ticker} onChange={(v) => setForm((f) => ({ ...f, ticker: v }))} placeholder="Ticker" className="w-24" />
         <select value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as 'buy' | 'sell' }))} className="h-8 rounded-lg border border-input bg-transparent px-2 text-sm">
           <option value="buy">Buy</option>
           <option value="sell">Sell</option>

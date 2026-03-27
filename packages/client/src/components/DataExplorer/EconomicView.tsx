@@ -47,7 +47,7 @@ export function EconomicView() {
           </TableRow>
         ))}
         {events.length === 0 && (
-          <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-6">No economic events</TableCell></TableRow>
+          <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-6">Add a Finnhub API key to view economic events</TableCell></TableRow>
         )}
       </TableBody>
     </Table>

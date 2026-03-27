@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { TickerAutocomplete } from '@/components/shared/TickerAutocomplete';
 import type { TradeJournalEntry } from '@orbit/shared';
 
 function fmt(n: number) {
@@ -55,7 +56,7 @@ export function TradeJournal() {
 
       {/* New Trade Form */}
       <form className="flex gap-2 items-end flex-wrap" onSubmit={(e) => { e.preventDefault(); if (form.ticker && form.entryPrice && form.shares) createMut.mutate(); }}>
-        <Input placeholder="Ticker" value={form.ticker} onChange={(e) => setForm((f) => ({ ...f, ticker: e.target.value }))} className="w-24" />
+        <TickerAutocomplete value={form.ticker} onChange={(v) => setForm((f) => ({ ...f, ticker: v }))} placeholder="Ticker" className="w-24" />
         <Input placeholder="Entry Price" type="number" step="0.01" value={form.entryPrice} onChange={(e) => setForm((f) => ({ ...f, entryPrice: e.target.value }))} className="w-28" />
         <Input type="date" value={form.entryDate} onChange={(e) => setForm((f) => ({ ...f, entryDate: e.target.value }))} className="w-36" />
         <Input placeholder="Shares" type="number" value={form.shares} onChange={(e) => setForm((f) => ({ ...f, shares: e.target.value }))} className="w-24" />

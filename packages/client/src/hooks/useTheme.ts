@@ -10,10 +10,12 @@ export function useTheme() {
 
   useEffect(() => {
     const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
+    if (theme === 'light') {
+      root.classList.add('light');
       root.classList.remove('dark');
+    } else {
+      root.classList.add('dark');
+      root.classList.remove('light');
     }
     localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
