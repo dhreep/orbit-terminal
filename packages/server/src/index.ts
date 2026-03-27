@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import vaultRouter from './routes/vault.js';
+import demoRouter from './routes/demo.js';
 import notesRouter from './routes/notes.js';
 import workspaceRouter from './routes/workspace.js';
 import marketRouter from './routes/market.js';
@@ -28,6 +29,7 @@ app.use(express.json({ limit: '5mb' }));
 
 // ─── Routes ─────────────────────────────────────────────
 app.use('/api/vault', vaultRouter);
+app.use('/api/demo', demoRouter);
 app.use('/api/notes', requireAuth, notesRouter);
 app.use('/api/workspace', requireAuth, workspaceRouter);
 app.use('/api/market', requireAuth, marketRouter);
