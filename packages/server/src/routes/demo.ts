@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { getDatabase } from '../db/database.js';
+import { generateSessionToken } from '../middleware/auth.js';
 import type { ApiResponse } from '@orbit/shared';
 
 const router = Router();
@@ -7,9 +8,12 @@ const router = Router();
 router.post('/seed', (_req, res) => {
   const db = getDatabase();
 
+  // Always issue a demo session token so the client can call protected routes
+  const token = generateSessionToken();
+
   const seeded = db.prepare("SELECT value FROM settings WHERE key = 'demo_seeded'").get();
   if (seeded) {
-    return res.json({ success: true, data: { alreadySeeded: true } } satisfies ApiResponse<any>);
+    return res.json({ success: true, data: { alreadySeeded: true, token } } satisfies ApiResponse<any>);
   }
 
   db.transaction(() => {
@@ -75,7 +79,7 @@ router.post('/seed', (_req, res) => {
     db.prepare("INSERT INTO settings (key, value) VALUES ('demo_seeded', 'true')").run();
   })();
 
-  res.json({ success: true, data: { seeded: true } } satisfies ApiResponse<any>);
+  res.json({ success: true, data: { seeded: true, token } } satisfies ApiResponse<any>);
 });
 
 router.post('/clear', (_req, res) => {

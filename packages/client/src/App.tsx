@@ -99,13 +99,13 @@ function Terminal() {
   }, []);
 
   useEffect(() => {
-    if (vault.status === 'unlocked' && !workspaceLoaded) {
+    if ((vault.status === 'unlocked' || demo.isDemoMode) && !workspaceLoaded) {
       api.workspace.get().then((ws) => {
         setWorkspace(ws);
         setWorkspaceLoaded(true);
       }).catch(() => setWorkspaceLoaded(true));
     }
-  }, [vault.status, workspaceLoaded]);
+  }, [vault.status, workspaceLoaded, demo.isDemoMode]);
 
   useEffect(() => {
     if (!workspaceLoaded) return;
